@@ -45,6 +45,7 @@ Damage_vsGoblins_Secondary,对地精的伤害（二级2H）
 Damage_vsNetherim_Secondary_2H,对冥裔的伤害
 Damage_vsUndead_Secondary_2H,对死灵的伤害
 Damage_vsUndead_Secondary,对死灵的伤害（二级）
+Damage_vsVespid_Secondary_2H,对骇危虫的伤害（二级2H）
 DamageMult_Poison_Secondary_Armor,毒素伤害加成
 Defense_Fire_Large_Secondary,火焰防御
 Defense_Fire_Medium_Secondary,火焰防御（二级，中）
@@ -96,18 +97,21 @@ LegendarySetBonus_Woodsbeast_LuckOnGoblinKill,[传奇][传奇默认词条]森林
 Luck_Gold,幸运 • 金币
 Luck_Item,幸运 • 装备
 Lucky,幸运（隐藏属性）
-Pet_AttackCooldown,宠物攻击速度
-Pet_Damage_Electric_Primary,[宠物铭牌]宠物闪电伤害
-Pet_Damage_Ice_Primary,[宠物铭牌]A秒中毒持续时间
-Pet_Damage_Physical_Primary,[宠物铭牌]宠物物理伤害
-Pet_Damage_Poison_Primary,[宠物铭牌]宠物毒素伤害
+Pet_AttackCooldown,[宠物]宠物攻击速度
+Pet_CriticalHit_Bonus,[宠物]宠物暴击伤害加成
+Pet_Damage_Electric_Primary,[宠物]宠物闪电伤害
+Pet_Damage_Ice_Primary,[宠物]A秒中毒持续时间
+Pet_Damage_Physical_Primary,[宠物]宠物物理伤害
+Pet_Damage_Poison_Primary,[宠物]宠物毒素伤害
 Pet_Defense_Fire_Primary,[宠物]宠物火焰防御
 Pet_Defense_Physical_Primary,[宠物]宠物防御
 Pet_HitPoints_Regen,[宠物]每秒恢复A的宠物生命值
 Pet_Legendary_FireImmunity,[宠物]宠物对火焰伤害免疫
-Pet_SkillCooldown,宠物的主动技能冷却速度加快A%
-Pet_StatusEffect_Apply_Chill,[宠物铭牌]宠物攻击造成霜寒状态，持续时间为A秒
-Pet_StatusEffect_Apply_Shock,[宠物铭牌]宠物攻击造成电击，持续A秒，击中敌人并造 成B%武器伤害
+Pet_SkillCooldown,[宠物]宠物的主动技能冷却速度加快A%
+Pet_StatusEffect_Apply_Burn,[宠物]宠物攻击造成每秒A%武器伤害的燃烧，持续B秒
+Pet_StatusEffect_Apply_Chill,[宠物]宠物攻击造成霜寒状态，持续时间为A秒
+Pet_StatusEffect_Apply_Poison,[宠物]宠物攻击造成每秒A%武器伤害的中毒，持续B秒
+Pet_StatusEffect_Apply_Shock,[宠物]宠物攻击造成电击，持续A秒，击中敌人并造 成B%武器伤害
 Skill_Damage_BasicAttack,普通攻击伤害加成
 Skill_Damage_Bow_BasicAttack,弓普通攻击伤害加成
 Skill_Damage_GreatWeapon_BasicAttack,巨武普通攻击伤害加成
@@ -125,6 +129,8 @@ Skill_Duration_Sharpshooter_Rizzi,duration for Rizzi's Fate|里兹的命运 持�
 Skill_Level_Sharpshooter_GhostVisage,Skill Level to Ghost Visage|[神射手]鬼面，位移神技，自带 6 秒无敌
 Skill_Level_Sharpshooter_GoblinLegion,Skill Level to Goblin Legion|妖精军团
 Skill_Level_Sharpshooter_Onslaught,Skill Level to Onslaught|[神射手]箭雨
+Skill_Level_Sharpshooter_Reload,Skill Level to Reload|[神射手]Reload
+Skill_Level_Sharpshooter_RizzisFate,Skill Level to Rizzi's Fate|[神射手]Rizzi's Fate
 Skill_Level_Sharpshooter_SacrificeToGoose,Skill Level to Sacrifice to Goose|[神射手]供奉大鹅
 Skill_Level_Sharpshooter_ScoutsBones,Skill Level to Scout's Bones|[神射手]童子军
 Skill_Level_Sharpshooter_TargetedStrikes,Skill Level to Targeted Strikes|[神射手]精准打击
@@ -142,6 +148,6 @@ StatusEffect_Apply_Shock,A%的几率造成电击，持续B秒，击中敌人并�
 StatusEffect_Apply_Stun,A%几率造成眩晕，持续B秒。
 StatusEffect_ApplyImmobilize,A几率定身，持续B秒
 StatusEffect_ApplySlow,A几率减缓目标基础速度的B%，持续C秒
-StatusEffect_Duration_Poison,[宠物铭牌]宠物寒冰伤害
+StatusEffect_Duration_Poison,[宠物]宠物寒冰伤害
 StatusEffect_Duration_Shock,A秒电击持续时间
 StatusEffect_Shock_Bolts,电击时额外发射1支箭
