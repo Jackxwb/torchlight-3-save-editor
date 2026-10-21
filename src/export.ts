@@ -32,7 +32,8 @@ function command(frontiersFolder) {
 
   for (let fileName of fileNames) {
     const content = file.getContent(path.join(inputFolder, fileName));
-    fs.writeFileSync(
+    // 安全写：磁盘满时抛错中断，不会把已存在的 JSON 截断成半篇
+    file.safeWriteFile(
       path.join(outputFolder, fileName.replace(".sav", ".json")),
       JSON.stringify(JSON.parse(content), null, 2)
     );

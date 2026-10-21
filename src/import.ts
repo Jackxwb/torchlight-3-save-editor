@@ -24,10 +24,13 @@ function command(frontiersFolder) {
   for (let fileName of fileNames) {
     const content = fs.readFileSync(path.join(inputFolder, fileName), "utf-8");
 
-    file.saveFile(
-      path.join(outputFolder, fileName.replace(".json", ".sav")),
-      JSON.parse(content)
+    const savPath = path.join(
+      outputFolder,
+      fileName.replace(".json", ".sav")
     );
+    // 写 .sav 前先备份（磁盘空间不足时备份失败 → 抛错中断，原存档不动）
+    file.backupFile(savPath);
+    file.saveFile(savPath, JSON.parse(content));
   }
 }
 

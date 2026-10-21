@@ -1,0 +1,31 @@
+# Torchlight 3 存档编辑器 - 角色物品行名 itemDataRow 翻译表（树中 itemDataRow 键按此表匹配）
+# 格式：每行 「数值,翻译」，井号开头为注释；翻译中可以包含逗号
+# name: 物品
+Armor_Common_Gloves_Global_01,手套[灰]基础护腕
+Armor_Legendary_Boots_Goblin_01,[传奇 黄]森林野兽靴子
+Armor_Magic_Boots_Global_01,靴子[绿]硬化猎人靴子
+Armor_Magic_Chest_Global_01,[绿]硬化弓手上衣
+Armor_Magic_Gloves_Global_01,[绿]硬化板甲护腕
+Armor_Magic_Pants_Global_01,[绿]硬化紧身马裤
+GoldBag,物品[灰]一笔金币
+Potion_Health,生命药水
+Quest_Reward_HealthBoost_Pancakes,消耗品[灰]冠军的薄烤饼。持续1分钟的10%生命爆发
+Relic_ColdHeart,圣物：冰彻心髓
+Weapon_Magic_Bow_02,弓[绿]严寒钩状弓
+Weapon_Magic_Bow_03,弓[绿]高压杨柳之弓
+Weapon_Magic_Bow_04,弓[绿]高压白杨之弓
+Weapon_Magic_Bow_06,弓[绿]严寒包布之弓
+Weapon_Magic_Focus_01,触媒[绿]多面体
+Weapon_Magic_GreatWeapon_01,[绿]致命巨剑
+Weapon_Magic_GreatWeapon_03,巨武[绿]严寒野蛮之刃
+Weapon_Magic_GreatWeapon_05,巨武[绿]炽烈双手剑
+Weapon_Magic_Pistol_01,[绿]剧毒左轮手枪
+Weapon_Magic_Rifle_01,[绿]高压加长型步枪
+Weapon_Magic_Rifle_02,步枪[绿]高压步枪
+Weapon_Magic_Shield_01,[绿]城墙塔盾
+Weapon_Magic_Staff_02,法杖[绿]严寒浸制法杖
+Weapon_Magic_Staff_03,法杖[绿]严寒行家法杖
+Weapon_Magic_Staff_07,法杖[绿]高压腐坏法杖
+Weapon_Magic_Staff_08,法杖[绿]致命微光法杖
+Weapon_Rare_Bow_01,弓[蓝]致命之翼
+Weapon_Rare_Sword_01,剑[蓝]歼灭者

@@ -110,5 +110,11 @@ torchlight-3-save-editor/
 # 本地代理工作数据（记忆日志等）
 .workbuddy/
 
+# 测试临时产物
+.wb-test-tmp/
+
 # 备份文件
 *.bak
+
+# 本地错误日志（ui/server.log，自动轮换）
+ui/server.log

@@ -70,6 +70,33 @@ function normColorValue(v) {
 // dist/file.js holds the .sav <-> JSON packing logic (compiled from src).
 const fileMod = require(path.join(ROOT, "dist", "file.js"));
 const file = fileMod.default || fileMod;
+// 安全写入三件套（src/file.ts 编译而来）：备份 / 原子写 / 空间查询
+const backupFile = file.backupFile;
+const safeWriteFile = file.safeWriteFile;
+
+/* 错误日志：写 ui/server.log（超 256KB 自动重建，防日志本身把磁盘写满），
+   同时打一份到 stderr。任何写盘异常都留痕，避免"静默丢失" */
+const UI_LOG = path.join(__dirname, "server.log");
+const UI_LOG_MAX = 256 * 1024;
+function uiLog(scope, err) {
+  const line =
+    "[" + new Date().toISOString() + "] " + scope + ": " +
+    String((err && err.stack) || err) + "\n";
+  try {
+    fs.appendFileSync(UI_LOG, line);
+    if (fs.statSync(UI_LOG).size > UI_LOG_MAX) {
+      fs.writeFileSync(UI_LOG, line);
+    }
+  } catch (_) {}
+  try {
+    process.stderr.write(line);
+  } catch (_) {}
+}
+
+/* 写盘类错误的 HTTP 状态码：磁盘空间不足 → 507，其余 → 500 */
+function writeErrStatus(e) {
+  return e && (e.code === "ENOSPC" || e.code === "ENOSPC_BACKUP") ? 507 : 500;
+}
 
 const START_PORT = Number(process.env.PORT) || 8791;
 const MAX_PORT = START_PORT + 10;
@@ -193,14 +220,18 @@ function apiSave(res, body) {
   } catch (e) {
     return sendJson(res, 400, { error: "JSON parse failed: " + e.message });
   }
-  const backup = target + ".bak";
-  fs.copyFileSync(target, backup);
-  fs.writeFileSync(target, content, "utf8");
-  sendJson(res, 200, {
-    ok: true,
-    bytes: Buffer.byteLength(content, "utf8"),
-    backup: path.basename(backup),
-  });
+  try {
+    backupFile(target); // 覆盖前备份，失败则拒绝写入（原文件不动）
+    const bytes = safeWriteFile(target, content);
+    sendJson(res, 200, {
+      ok: true,
+      bytes,
+      backup: path.basename(target + ".bak"),
+    });
+  } catch (e) {
+    uiLog("apiSave " + name, e);
+    sendJson(res, writeErrStatus(e), { error: String((e && e.message) || e) });
+  }
 }
 
 function apiImport(res, body) {
@@ -238,8 +269,8 @@ function apiImport(res, body) {
         });
         continue;
       }
-      fs.copyFileSync(savPath, savPath + ".bak");
-      file.saveFile(savPath, json);
+      backupFile(savPath); // 备份失败 → 该文件记 errors，原 .sav 不动
+      file.saveFile(savPath, json); // 内部为 tmp+rename 原子写
       results.push({
         name,
         ok: true,
@@ -289,13 +320,12 @@ function apiExport(res, body) {
     try {
       const content = file.getContent(path.join(inputFolder, fileName));
       const outName = fileName.replace(/\.sav$/i, ".json");
-      fs.writeFileSync(
-        path.join(DATA_DIR, outName),
-        JSON.stringify(JSON.parse(content), null, 2),
-        "utf8"
-      );
+      const outPath = path.join(DATA_DIR, outName);
+      backupFile(outPath); // 覆盖同名导出产物前先备份
+      safeWriteFile(outPath, JSON.stringify(JSON.parse(content), null, 2));
       exported.push(outName);
     } catch (e) {
+      uiLog("apiExport " + fileName, e);
       errors.push({ name: fileName, reason: String((e && e.message) || e) });
     }
   }
@@ -419,16 +449,16 @@ async function apiSaveTranslations(res, body) {
     if (oldComments.length) header = oldComments.join("\n") + "\n";
   } catch (_) {}
   const content = header + lines.join("\n") + (lines.length ? "\n" : "");
+  /* 安全写入：备份 → tmp + rename 原子替换。
+     磁盘满等异常时原 CSV 保持原样（绝不被截断），错误透传给前端 */
   try {
-    fs.mkdirSync(TRANSLATION_DIR, { recursive: true });
-    const tmp = fp + ".tmp";
-    fs.writeFileSync(tmp, content, "utf8");
-    fs.renameSync(tmp, fp);
-  } catch (_) {
-    try { fs.unlinkSync(fp + ".tmp"); } catch (__) {}
-    fs.writeFileSync(fp, content, "utf8");
+    backupFile(fp);
+    const bytes = safeWriteFile(fp, content);
+    sendJson(res, 200, { ok: true, file: name, count: lines.length, bytes, path: fp });
+  } catch (e) {
+    uiLog("apiSaveTranslations " + name, e);
+    sendJson(res, writeErrStatus(e), { error: String((e && e.message) || e) });
   }
-  sendJson(res, 200, { ok: true, file: name, count: lines.length, path: fp });
 }
 
 async function handler(req, res) {
@@ -509,4 +539,14 @@ server.listen(port, "127.0.0.1", () => {
   console.log(" Stop       : Ctrl+C (close this window)");
   console.log("====================================================");
   if (!NO_OPEN) openBrowser(url);
+});
+
+/* 进程级兜底：未捕获异常/未处理 Promise 拒绝不再静默崩溃退出，
+   统一记日志（ui/server.log，带堆栈）后尽量保持服务存活。
+   所有已知写盘路径均已原子化，这里只是最后一道保险 */
+process.on("uncaughtException", (e) => {
+  uiLog("uncaughtException", e);
+});
+process.on("unhandledRejection", (e) => {
+  uiLog("unhandledRejection", e);
 });
