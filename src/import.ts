@@ -1,16 +1,19 @@
 import path from "path";
 import fs from "fs";
 
-import getPath from "platform-folders";
-
 import file from "./file";
 
 function command(frontiersFolder) {
-  const inputFolder = path.join(
-    getPath("documents"),
-    "torchlight-3-save-editor"
-  );
+  const inputFolder = path.resolve("./torchlight-3-save-editor");
   const outputFolder = path.join(frontiersFolder, file.saveGameFolder);
+
+  if (!fs.existsSync(inputFolder)) {
+    console.error(
+      `JSON folder not found: ${inputFolder}\n` +
+        `Run the export command first to create it.`
+    );
+    process.exit(1);
+  }
 
   const fileNames = file.listAllValidFiles(inputFolder);
 

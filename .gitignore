@@ -81,6 +81,7 @@ typings/
 # Nuxt.js build / generate output
 .nuxt
 # dist
+dist/
 
 # Gatsby files
 .cache/
@@ -102,3 +103,12 @@ typings/
 
 # TernJS port file
 .tern-port
+
+# 本地运行时数据：导出的存档 JSON 工作目录（随时可重新导出，勿提交）
+torchlight-3-save-editor/
+
+# 本地代理工作数据（记忆日志等）
+.workbuddy/
+
+# 备份文件
+*.bak

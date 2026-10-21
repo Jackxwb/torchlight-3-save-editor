@@ -9,10 +9,10 @@ const saveGameFolder = "Saved/SaveGames";
 // /[0-9]*-QuestData\.(sav|json)/,
 // /[0-9]*-AccountQuests\.(sav|json)/,
 const validFiles = [
-  /[0-9]*-CharacterData\.(sav|json)/,
-  /[0-9]*-AccountWide\.(sav|json)/,
-  /[0-9]*-FortInventory\.(sav|json)/,
-  /[0-9]*-FortStash\.(sav|json)/,
+  /[0-9]*-CharacterData\.(sav|json)$/,
+  /[0-9]*-AccountWide\.(sav|json)$/,
+  /[0-9]*-FortInventory\.(sav|json)$/,
+  /[0-9]*-FortStash\.(sav|json)$/,
 ];
 
 function getStartindex(fileAsBuffer) {
