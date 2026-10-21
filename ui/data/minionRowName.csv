@@ -1,0 +1,4 @@
+# Torchlight 3 存档编辑器 - 宠物行名 minionRowName 翻译表（树中 minionRowName 键按此表匹配）
+# 格式：每行 「数值,翻译」，井号开头为注释；翻译中可以包含逗号
+# name: 宠物类型
+Alpaca01,羊驼

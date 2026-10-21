@@ -1,0 +1,136 @@
+# Torchlight 3 存档编辑器 - affixName 翻译表
+# 格式：每行 「数值,翻译」，井号开头为注释；翻译中可以包含逗号
+# name: 附魔属性
+Ammo_Regen_Primary_Strong,每秒弹药恢复（初级，强力）
+Ammo_Regen_Primary,每秒弹药恢复
+Ammo_Regen,每秒弹药恢复
+AttackSpeedBonus,普通攻击速度
+Block_Secondary,格挡率（二级）
+Block_Strong,格挡率（强）
+bLock,格挡率
+Bundle_Contents_Tooltip,[提示]消耗品提示
+CooldownPctRelicActiveSkill,减少圣物能量消耗
+CriticalHit_Chance_Armor,暴击率（装甲？）
+CriticalHit_Chance_Primary,暴击率（初级）
+CriticalHit_Chance_vsBleed,对电击目标的暴击率
+CriticalHit_Chance_vsBurn,对燃烧目标的暴击率
+CriticalHit_Chance_vsChilled,对霜寒目标的暴击率
+CriticalHit_Chance_vsGoblins,对地精的暴击率
+CriticalHit_Chance_vsShock,对流血目标的暴击率
+CriticalHit_Chance,暴击率
+CriticalHit_Damage_Armor,暴击伤害加成
+CriticalHit_Damage,暴击伤害加成
+Damage_Electric_Primary_2H,闪电伤害（初级）
+Damage_Electric_Primary,闪电伤害（初级）
+Damage_Electric_Secondary_2H,闪电伤害（二级2H）
+Damage_Electric_Secondary,闪电伤害（二级）
+Damage_Fire_Primary_2H,火焰伤害（初级）
+Damage_Fire_Primary,火焰伤害（初级）
+Damage_Fire_Secondary_2H,火焰伤害（二级2H）
+Damage_Fire_Secondary,火焰伤害（二级）
+Damage_Ice_Primary_2H,寒冰伤害（初级）
+Damage_Ice_Primary,寒冰伤害（初级）
+Damage_Ice_Secondary_2H,寒冰伤害（二级）
+Damage_Ice_Secondary,寒冰伤害（二级）
+Damage_Physical_Primary_2H,物理伤害（初级）
+Damage_Physical_Primary,物理伤害（初级）
+Damage_Physical_Secondary_2H,物理伤害（二级2H）
+Damage_Physical_Secondary,物理伤害（二级）
+Damage_Poison_Primary_2H,毒素伤害（初级2H）
+Damage_Poison_Primary,毒素伤害（初级）
+Damage_Poison_Secondary_2H,毒素伤害（二级2H）
+Damage_Poison_Secondary,毒素伤害（二级）
+Damage_vsGoblins_Secondary_2H,对地精的伤害
+Damage_vsGoblins_Secondary,对地精的伤害（二级2H）
+Damage_vsNetherim_Secondary_2H,对冥裔的伤害
+Damage_vsUndead_Secondary_2H,对死灵的伤害
+Damage_vsUndead_Secondary,对死灵的伤害（二级）
+DamageMult_Poison_Secondary_Armor,毒素伤害加成
+Defense_Fire_Large_Secondary,火焰防御
+Defense_Fire_Medium_Secondary,火焰防御（二级，中）
+Defense_Fire_Small_Secondary,火焰防御（小）
+Defense_Physical_Large_Primary,防御（大）
+Defense_Physical_Medium_Primary,防御（中）
+Defense_Physical_Medium_Secondary,防御（中，二级）
+Defense_Physical_Small_Primary,防御（小）
+EmberWeaponChargeRegen,圣物能量生成
+EnchantingEssence_Legendary_2_Tooltip,[消耗品词条]传奇精华
+EnchantingEssence_Magic_8_Tooltip,[消耗品词条]魔法精华
+EnchantingEssence_Rare_4_Tooltip,[消耗品词条]稀有精华
+EnchantingRecipe_Category_1HWeapon_Tooltip,[附魔配方][提示]配方类别：单手武器
+EnchantingSlot_Common,附魔槽（常见）
+EnchantingSlot_Magic,[绿]附魔槽（魔法）
+EnchantingSlot_Rare,[蓝]附魔槽（稀有）
+Evasion_Medium_Primary,几率闪避伤害（初级，中）
+Evasion_Medium_Secondary,几率闪避伤害（二级，中）
+Evasion_Small_Primary,几率闪避伤害（初级，小）
+Evasion_Small_Secondary,几率闪避伤害（二级，小）
+GoldBagTooltip,[提示]使用后获得一袋金币
+HitPoints_Bonus_Primary,附加生命值（初级）
+HitPoints_Bonus_Secondary,附加生命值（二级）
+HitPoints_OnKill_vsGoblins,地精击杀生命恢复
+HitPoints_OnKill_vsNetherim,冥裔击杀生命恢复
+HitPoints_OnKill_vsVespid,击杀骇危虫，生命恢复
+HitPoints_OnKill,击杀生命恢复
+HitPoints_Regen_Secondary,每秒生命恢复
+ItemType_Weapon_Digitus_Tooltip,[附魔配方][类型]魂指
+ItemType_Weapon_Mace_Tooltip,[附魔配方][类型]战锤
+ItemType_Weapon_Sword_Tooltip,[附魔配方][类型]剑
+Legendary_Bow_StormDriver,[传奇][传奇默认词条]风暴驾驭者
+Legendary_RandomRelicSkill,[传奇]施放寒霜冲击时：同时通过另一个随机圣物施放一个技能
+Legendary_SSSet1_BasicAmmoRestore,[传奇][传奇默认词条]火枪手长裤
+Legendary_SSSet1_PotionIntagible,[传奇][传奇默认词条]火枪手肩甲
+Legendary_Woodsbeast_GoblinRage,[传奇][传奇默认词条]森林野兽靴子
+Legendary_Woodsbeast_LuckOnGoblinKill,[传奇][传奇默认词条]森林野兽胸甲
+LegendarySetBonus_SSSet1_BasicAmmoRestore,[传奇][传奇默认词条]火枪手长裤
+LegendarySetBonus_SSSet1_PotionIntagible,[传奇][传奇默认词条]火枪手肩甲
+LegendarySetBonus_Woodsbeast_GoblinRage,[传奇][传奇默认词条]森林野兽靴子
+LegendarySetBonus_Woodsbeast_LuckOnGoblinKill,[传奇][传奇默认词条]森林野兽胸甲
+Luck_Gold,幸运 • 金币
+Luck_Item,幸运 • 装备
+Lucky,幸运（隐藏属性）
+Pet_AttackCooldown,宠物攻击速度
+Pet_Damage_Electric_Primary,[宠物铭牌]宠物闪电伤害
+Pet_Damage_Ice_Primary,[宠物铭牌]A秒中毒持续时间
+Pet_Damage_Physical_Primary,[宠物铭牌]宠物物理伤害
+Pet_Defense_Fire_Primary,[宠物]宠物火焰防御
+Pet_HitPoints_Regen,[宠物]每秒恢复A的宠物生命值
+Pet_Legendary_FireImmunity,[宠物]宠物对火焰伤害免疫
+Pet_SkillCooldown,宠物的主动技能冷却速度加快A%
+Pet_StatusEffect_Apply_Chill,[宠物铭牌]宠物攻击造成霜寒状态，持续时间为A秒
+Pet_StatusEffect_Apply_Shock,[宠物铭牌]宠物攻击造成电击，持续A秒，击中敌人并造 成B%武器伤害
+Skill_Damage_BasicAttack,普通攻击伤害加成
+Skill_Damage_Bow_BasicAttack,弓普通攻击伤害加成
+Skill_Damage_GreatWeapon_BasicAttack,巨武普通攻击伤害加成
+Skill_Damage_Mace_BasicAttack,战锤普通攻击伤害加成
+Skill_Damage_Pistol_BasicAttack,手枪普通攻击伤害加成
+Skill_Damage_Rifle_BasicAttack,步枪普通攻击伤害加成
+Skill_Damage_Sharpshooter_Goblin,damage w/ Goblin Legion|妖精军团造成的伤害
+Skill_Damage_Sharpshooter_Goose,damage w/ Sacrifice to Goose| 祭祀大鹅 伤害增加
+Skill_Damage_Sharpshooter_Onslaught,damage w/ Onslaught
+Skill_Damage_Sharpshooter_Scout,damage w/ Scout's Bones|侦察兵之骨 伤害增加
+Skill_Damage_Sharpshooter_TargetedStrikes,damage w/ Targeted Strikes|[神射手]精准打击，伤害增加
+Skill_Damage_Staff_BasicAttack,法杖普通攻击伤害加成
+Skill_Damage_Sword_BasicAttack,剑击普通攻击伤害加成
+Skill_Level_Sharpshooter_GhostVisage,Skill Level to Ghost Visage|[神射手]鬼面，位移神技，自带 6 秒无敌
+Skill_Level_Sharpshooter_GoblinLegion,Skill Level to Goblin Legion|妖精军团
+Skill_Level_Sharpshooter_Onslaught,Skill Level to Onslaught|[神射手]箭雨
+Skill_Level_Sharpshooter_ScoutsBones,Skill Level to Scout's Bones|[神射手]童子军
+Skill_Level_Sharpshooter_TargetedStrikes,Skill Level to Targeted Strikes|[神射手]精准打击
+Skill_Level_Sharpshooter_TightGrouping,Skill Level to Tight Grouping|[神射手]紧凑射击，初始输出技能
+StatusEffect_Apply_Bleed,A几率造成每秒B%基础伤害的流血 持续C秒
+StatusEffect_Apply_Blind,A几率造成盲目，持续B秒
+StatusEffect_Apply_Burn,A几率造成每秒B%基础伤害的燃烧， 持续C秒
+StatusEffect_Apply_Chill,A几率造成霜寒状态，持续B秒
+StatusEffect_Apply_Fear,几率造成恐惧，持续A秒
+StatusEffect_Apply_Freeze,A几率造成冰冻，持续B秒
+StatusEffect_Apply_Knockback_2H,几率造成击退
+StatusEffect_Apply_Knockback,A几率击退/B几率造成击退效果
+StatusEffect_Apply_Poison,A几率对目标施加中毒状态，每秒造成B%基础伤害，持续C秒。
+StatusEffect_Apply_Shock,A%的几率造成电击，持续B秒，击中敌人并造成C%武器伤害
+StatusEffect_Apply_Stun,A%几率造成眩晕，持续B秒。
+StatusEffect_ApplyImmobilize,A几率定身，持续B秒
+StatusEffect_ApplySlow,A几率减缓目标基础速度的B%，持续C秒
+StatusEffect_Duration_Poison,[宠物铭牌]宠物寒冰伤害
+StatusEffect_Duration_Shock,A秒电击持续时间
+StatusEffect_Shock_Bolts,电击时额外发射1支箭

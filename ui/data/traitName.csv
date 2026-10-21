@@ -1,0 +1,11 @@
+# name: 属性
+Ammo,弹药
+Currency,物资资源,#e302dc
+Difficulty,难度
+Hitpoints,生命值
+Level,等级
+LevelSkillPoints,可用技能点
+LowestDifficulty,最低难度
+SkillLevel,技能等级,#f582f7
+SkillRegretPoints,技能遗忘点
+TotalLevelSkillPoints,已使用技能点

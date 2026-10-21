@@ -1,0 +1,2349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Torchlight 3 存档编辑器</title>
+<style>
+  :root {
+    --bg: #1b1c21;
+    --panel: #23242b;
+    --panel2: #2a2b33;
+    --border: #3a3c45;
+    --text: #e8e9ee;
+    --muted: #9a9ca6;
+    --accent: #5b9cf8;
+    --ok: #4cc38a;
+    --warn: #e8b339;
+    --err: #ef6a6a;
+    --mono: ui-monospace, Consolas, "Cascadia Mono", "Courier New", monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 13px/1.5 system-ui, "Segoe UI", "Microsoft YaHei", sans-serif;
+    display: flex;
+    flex-direction: column;
+  }
+  button { font: inherit; color: inherit; background: var(--panel2); border: 1px solid var(--border); border-radius: 6px; padding: 3px 10px; cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #0d1420; font-weight: 600; }
+  button.primary:disabled { background: var(--panel2); border-color: var(--border); color: var(--muted); cursor: not-allowed; }
+  button.danger { background: #4a2323; border-color: #7a3030; }
+  input[type="text"] {
+    background: var(--bg); color: var(--text); border: 1px solid var(--border);
+    border-radius: 5px; padding: 2px 7px; font: inherit; min-width: 0;
+  }
+  input[type="text"]:focus { outline: none; border-color: var(--accent); }
+
+  header {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 8px 14px; background: var(--panel); border-bottom: 1px solid var(--border);
+  }
+  header .title { font-weight: 600; font-size: 14px; }
+  header .path { color: var(--muted); font-family: var(--mono); font-size: 12px; }
+
+  #banner {
+    display: none; padding: 10px 14px; background: #40222a;
+    border-bottom: 1px solid #7a3030; color: #ffb4b4;
+  }
+  #banner.show { display: block; }
+
+  #app { flex: 1; display: flex; min-height: 0; }
+  aside {
+    width: 280px; flex: none; background: var(--panel); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; min-height: 0;
+  }
+  aside .side-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--muted);
+  }
+  aside .side-head .btns { display: flex; gap: 6px; }
+  #filelist { overflow: auto; flex: 1; }
+  .file-item {
+    padding: 7px 12px; cursor: pointer; border-bottom: 1px solid #2c2e36;
+    display: flex; flex-direction: column; gap: 1px;
+  }
+  .file-item:hover { background: var(--panel2); }
+  .file-item.active { background: #23304a; border-left: 3px solid var(--accent); padding-left: 9px; }
+  .file-item .fn { font-family: var(--mono); font-size: 12px; word-break: break-all; }
+  .file-item .fs { color: var(--muted); font-size: 11px; }
+  .side-empty { padding: 14px 12px; color: var(--muted); }
+
+  main { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  #toolbar {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 8px 12px; border-bottom: 1px solid var(--border); background: var(--panel);
+  }
+  #toolbar .fname { font-family: var(--mono); font-weight: 600; margin-right: 4px; }
+  .badge { font-family: var(--mono); font-size: 12px; padding: 2px 8px; border-radius: 20px; border: 1px solid var(--border); }
+  .badge.ok { color: var(--ok); border-color: #2c5c46; }
+  .badge.over { color: var(--err); border-color: #7a3030; background: #3a1f22; }
+  .badge.dirty { color: var(--warn); border-color: #6b531f; }
+  #filter { width: 180px; }
+
+  #editorwrap { flex: 1; overflow: auto; padding: 6px 12px 20px; }
+  #raw {
+    width: 100%; height: 100%; min-height: 300px; resize: none; display: none;
+    background: var(--bg); color: var(--text); border: 1px solid var(--border);
+    border-radius: 8px; font-family: var(--mono); font-size: 12px; padding: 10px;
+  }
+  #raw.show { display: block; }
+
+  .node { user-select: none; }
+  .row {
+    display: flex; align-items: center; gap: 6px;
+    padding: 1px 0; border-radius: 4px;
+  }
+  .row:hover { background: #262832; }
+  .row .key { font-family: var(--mono); color: #b9c7e8; flex: none; max-width: 40%; overflow: hidden; text-overflow: ellipsis; }
+  .row .val { flex: 1; font-family: var(--mono); font-size: 12px; }
+  .row .idx { font-family: var(--mono); color: var(--muted); flex: none; }
+  .row .cnt { color: var(--muted); font-size: 11px; flex: none; }
+  .row .kname { flex: none; font-size: 11px; color: #9fe8b5; border: 1px solid var(--border); border-radius: 3px; padding: 0 5px; line-height: 15px; background: rgba(159, 232, 181, 0.08); white-space: nowrap; }
+  .row .tw {
+    flex: none; width: 20px; padding: 0; background: none; border: none;
+    color: var(--muted); cursor: pointer;
+  }
+  .row .mini { flex: none; padding: 0 6px; font-size: 12px; line-height: 1.4; color: var(--muted); background: none; border: none; }
+  .row .mini:hover { color: var(--text); border-color: var(--border); }
+  .children { border-left: 1px dashed #34363f; margin-left: 9px; padding-left: 8px; }
+  .null-val { color: var(--muted); font-family: var(--mono); font-size: 12px; }
+  .empty { color: var(--muted); padding: 18px 6px; }
+  button:disabled { opacity: .35; cursor: default; }
+  button:disabled:hover { border-color: var(--border); }
+
+  .row .tr {
+    flex: none; max-width: 34%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    color: var(--ok); font-size: 12px;
+  }
+  .row .tr.unknown { color: var(--muted); }
+  .row .key.dbl { cursor: text; border-bottom: 1px dotted var(--muted); }
+  .row .idx.dbl { cursor: text; border-bottom: 1px dotted var(--muted); }
+  .rename-in {
+    flex: none; max-width: 40%; font-family: var(--mono); color: #b9c7e8;
+    background: var(--bg); border: 1px solid var(--accent); border-radius: 4px; padding: 1px 6px;
+  }
+
+  #dlg-mask { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: none; z-index: 50; }
+  #dlg-mask.show { display: block; }
+  #dlg {
+    position: fixed; left: 50%; top: 15%; transform: translateX(-50%);
+    width: min(640px, 92vw); min-width: min(640px, 92vw); max-height: 78vh; display: none; z-index: 51;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    box-shadow: 0 10px 42px rgba(0,0,0,.55); flex-direction: column; overflow: hidden;
+  }
+  #dlg.show { display: flex; }
+  #dlg-head {
+    display: flex; align-items: center; gap: 8px; padding: 9px 12px;
+    background: var(--panel2); border-bottom: 1px solid var(--border);
+    cursor: move; user-select: none;
+  }
+  #dlg-title { font-weight: 600; flex: 1; }
+  #dlg-close { padding: 1px 9px; }
+  #dlg-body { display: flex; flex-direction: column; min-height: 0; padding: 10px 12px; gap: 8px; }
+  #dlg-filter { width: 100%; }
+  #dlg-sortbar { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+  #dlg-sortbar .lbl { color: var(--muted); font-size: 12px; flex: none; }
+  .sortbtn { font-size: 12px; padding: 2px 10px; border: 1px solid var(--border); background: transparent; color: var(--muted); border-radius: 3px; cursor: pointer; }
+  .sortbtn:hover { color: var(--fg); }
+  .sortbtn.sel { color: #9fe8b5; border-color: #9fe8b5; background: rgba(159, 232, 181, 0.08); }
+  #dlg-list {
+    overflow: auto; min-height: 170px; max-height: 44vh; flex: 1 1 auto;
+    border: 1px solid var(--border); border-radius: 8px; background: var(--bg);
+  }
+  /* 应用了记忆/拖动的尺寸后，列表吃下对话框多出的高度 */
+  #dlg.sized #dlg-list { max-height: none; }
+  #dlg-form { display: none; gap: 6px; align-items: center; }
+  #dlg-form input[type="text"] { flex: 1 1 0; min-width: 0; }
+  #dlg-form input[type="color"] { flex: none; width: 30px; height: 24px; padding: 0; border: 1px solid var(--border); background: var(--bg); cursor: pointer; }
+  #dlg-form #dlg-f-color-hex { flex: none; width: 108px; min-width: 0; font-family: var(--mono); font-size: 12px; }
+  #dlg-form #dlg-f-color-clear { flex: none; padding: 2px 8px; font-size: 12px; }
+  /* 宽窗模式（宽度超过默认 640）：原文保持基准宽，翻译文本 flex 吸收全部剩余空间 */
+  #dlg.wide #dlg-f-val { flex: 0 1 150px; }
+  #dlg.wide #dlg-f-text { flex: 1 1 0; }
+  /* 右下角拖动把手：调整窗口大小（尺寸记入浏览器，位置不记） */
+  #dlg-resize {
+    position: absolute; right: 3px; bottom: 3px; width: 16px; height: 16px;
+    cursor: nwse-resize; z-index: 3; touch-action: none; user-select: none;
+  }
+  #dlg-resize::after {
+    content: ""; position: absolute; right: 2px; bottom: 2px; width: 7px; height: 7px;
+    border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+  }
+  #dlg-resize:hover::after { border-color: var(--accent); }
+  .dlg-item { display: flex; gap: 10px; padding: 6px 10px; cursor: pointer; border-bottom: 1px solid #2c2e36; align-items: baseline; }
+  .dlg-item:hover { background: var(--panel2); }
+  .dlg-item.sel { background: #23304a; }
+  .dlg-item .v { font-family: var(--mono); font-size: 12px; color: #b9c7e8; flex: none; max-width: 48%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dlg-item .t { font-size: 12px; }
+  .dlg-item .t.unknown { color: var(--muted); }
+  .dlg-empty { padding: 16px; color: var(--muted); text-align: center; }
+  #dlg-foot { display: flex; align-items: center; gap: 8px; padding: 9px 26px 9px 12px; border-top: 1px solid var(--border); }
+  #dlg-count { color: var(--muted); font-size: 12px; }
+
+  /* 添加元素/字段对话框（字段/对象/数组 三选） */
+  #add-mask { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: none; z-index: 60; }
+  #add-mask.show { display: block; }
+  #add {
+    position: fixed; left: 50%; top: 22%; transform: translateX(-50%);
+    width: min(380px, 90vw); display: none; z-index: 61;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    box-shadow: 0 10px 42px rgba(0,0,0,.55); flex-direction: column; overflow: hidden;
+  }
+  #add.show { display: flex; }
+  #add-head {
+    display: flex; align-items: center; gap: 8px; padding: 9px 12px;
+    background: var(--panel2); border-bottom: 1px solid var(--border);
+    cursor: move; user-select: none;
+  }
+  #add-title { font-weight: 600; flex: 1; }
+  #add-close { padding: 1px 9px; }
+  #add-body { display: flex; flex-direction: column; padding: 12px; gap: 10px; }
+  #add-hint { color: var(--muted); font-size: 12px; }
+  #add-key { width: 100%; }
+  #add-types { display: flex; gap: 8px; }
+  #add-types button { flex: 1; }
+  #add-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 9px 12px; border-top: 1px solid var(--border); }
+
+  /* 通用确认对话框（放弃未保存修改等，替代会被面板抑制的 confirm()） */
+  #confirm-mask { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: none; z-index: 70; }
+  #confirm-mask.show { display: block; }
+  #confirm {
+    position: fixed; left: 50%; top: 26%; transform: translateX(-50%);
+    width: min(440px, 90vw); display: none; z-index: 71;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    box-shadow: 0 10px 42px rgba(0,0,0,.55); flex-direction: column; overflow: hidden;
+  }
+  #confirm.show { display: flex; }
+  #confirm-head {
+    display: flex; align-items: center; gap: 8px; padding: 9px 12px;
+    background: var(--panel2); border-bottom: 1px solid var(--border);
+    cursor: move; user-select: none;
+  }
+  #confirm-title { font-weight: 600; flex: 1; }
+  #confirm-body { padding: 14px 12px; }
+  #confirm-msg { font-size: 13px; line-height: 1.6; white-space: pre-wrap; }
+  #confirm-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 9px 12px; border-top: 1px solid var(--border); }
+
+  /* 局部 JSON 编辑对话框 */
+  #json-mask { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: none; z-index: 65; }
+  #json-mask.show { display: block; }
+  #json {
+    position: fixed; left: 50%; top: 10%; transform: translateX(-50%);
+    width: min(780px, 94vw); display: none; z-index: 66;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    box-shadow: 0 10px 42px rgba(0,0,0,.55); flex-direction: column; overflow: hidden;
+  }
+  #json.show { display: flex; }
+  #json-head {
+    display: flex; align-items: center; gap: 8px; padding: 9px 12px;
+    background: var(--panel2); border-bottom: 1px solid var(--border);
+    cursor: move; user-select: none;
+  }
+  #json-title { font-weight: 600; flex: 1; }
+  #json-body { padding: 10px 12px; }
+  #json-ta {
+    width: 100%; height: 52vh; box-sizing: border-box; resize: vertical;
+    font-family: var(--mono); font-size: 12px; line-height: 1.5;
+    background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px;
+  }
+  #json-foot { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-top: 1px solid var(--border); }
+  #json-hint { color: var(--muted); font-size: 12px; }
+  #json-hint.err { color: var(--err); }
+
+  /* JSON 路径面包屑（聚焦输入框时显示，位于编辑区与导入栏之间） */
+  #pathbar {
+    border-top: 1px solid var(--border); background: var(--panel);
+    padding: 4px 12px; display: flex; align-items: center; gap: 8px; min-height: 30px;
+  }
+  #pathbar .pb-label { color: var(--muted); font-size: 12px; flex: none; }
+  #pathbar .pb-empty { color: var(--muted); font-size: 12px; }
+  #pathbar-crumbs {
+    flex: 1; display: flex; align-items: center; gap: 1px; overflow-x: auto;
+    white-space: nowrap; min-width: 0; padding: 2px 0;
+  }
+  #pathbar-crumbs::-webkit-scrollbar { height: 6px; }
+  .pb-crumb {
+    display: inline-flex; align-items: center; gap: 5px; padding: 1px 7px;
+    border-radius: 5px; border: 1px solid transparent; cursor: pointer; flex: none;
+    font-family: var(--mono); font-size: 12px; color: #b9c7e8;
+  }
+  .pb-crumb:hover { background: var(--panel2); border-color: var(--border); }
+  .pb-crumb.cur { color: var(--accent); border-color: var(--accent); background: rgba(91, 156, 248, 0.1); }
+  .pb-crumb .pb-idx { color: var(--muted); }
+  .pb-crumb .pb-tr {
+    color: var(--ok); font-family: system-ui, "Microsoft YaHei", sans-serif;
+    max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  /* 键名翻译标签（来自 <键名>.csv 头部 # name:），样式与树中 .kname 一致；
+     头部 # color: 主题色由 JS 内联覆盖（文字/描边/背景） */
+  .pb-crumb .pb-kn {
+    flex: none; font-size: 11px; color: #9fe8b5; border: 1px solid var(--border);
+    border-radius: 3px; padding: 0 5px; line-height: 15px; background: rgba(159, 232, 181, 0.08);
+    white-space: nowrap; font-family: system-ui, "Microsoft YaHei", sans-serif;
+  }
+  .pb-sep { color: var(--muted); flex: none; padding: 0 2px; }
+
+  /* 同级兄弟节点菜单（悬停路径段弹出，可点击跳转） */
+  #pathmenu {
+    position: fixed; z-index: 80; display: none; max-width: min(360px, 92vw);
+    background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5); flex-direction: column; overflow: hidden;
+  }
+  #pathmenu.show { display: flex; }
+  #pathmenu .pm-head {
+    padding: 5px 10px; font-size: 11px; color: var(--muted);
+    border-bottom: 1px solid var(--border); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #pathmenu .pm-list { overflow: auto; max-height: 240px; }
+  .pm-item { display: flex; align-items: baseline; gap: 8px; padding: 5px 10px; cursor: pointer; font-size: 12px; }
+  .pm-item:hover { background: var(--panel2); }
+  .pm-item.cur { background: #23304a; }
+  .pm-item .k { font-family: var(--mono); color: #b9c7e8; flex: none; }
+  .pm-item .t { color: var(--ok); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pm-item .kn {
+    flex: none; font-size: 11px; color: #9fe8b5; border: 1px solid var(--border);
+    border-radius: 3px; padding: 0 5px; line-height: 15px; background: rgba(159, 232, 181, 0.08);
+    white-space: nowrap; font-family: system-ui, "Microsoft YaHei", sans-serif;
+  }
+  .pm-item .i { font-family: var(--mono); color: var(--muted); flex: none; }
+
+  /* 路径段跳转后的行高亮 */
+  .node.flash > .row { background: rgba(91, 156, 248, 0.22); box-shadow: inset 0 0 0 1px var(--accent); }
+
+  #importbar {
+    border-top: 1px solid var(--border); background: var(--panel);
+    padding: 8px 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  #importbar label { color: var(--muted); }
+  #frontiers { flex: 1; min-width: 260px; font-family: var(--mono); font-size: 12px; }
+  #importlog { max-height: 130px; overflow: auto; font-family: var(--mono); font-size: 12px; padding: 6px 12px; border-top: 1px solid var(--border); display: none; }
+  #importlog.show { display: block; }
+  #importlog .r-ok { color: var(--ok); }
+  #importlog .r-err { color: var(--err); }
+
+  #toast {
+    position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
+    background: #2c2f38; border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 16px; display: none; max-width: 80%;
+    box-shadow: 0 4px 18px rgba(0,0,0,.45);
+  }
+  #toast.show { display: block; }
+  #toast.err { border-color: #7a3030; color: #ffb4b4; }
+</style>
+</head>
+<body>
+<header>
+  <span class="title">Torchlight 3 存档编辑器</span>
+  <span class="path" id="datadir">…</span>
+</header>
+<div id="banner"></div>
+
+<div id="app">
+  <aside>
+    <div class="side-head">
+      <span>存档 JSON 文件</span>
+      <span class="btns">
+        <button id="btn-export" title="从 Frontiers 目录解析 .sav 为 JSON（等价于 CLI 的 export 命令）">解析存档</button>
+        <button id="btn-refresh" title="刷新文件列表">刷新</button>
+      </span>
+    </div>
+    <div id="filelist"></div>
+  </aside>
+
+  <main>
+    <div id="toolbar">
+      <span class="fname" id="curfile">未选择文件</span>
+      <span class="badge ok" id="len">长度 - / -</span>
+      <span class="badge dirty" id="dirtybadge" style="display:none">未保存</span>
+      <span style="flex:1"></span>
+      <input type="text" id="filter" placeholder="过滤键名 / 值…">
+      <button id="btn-expand">全部展开</button>
+      <button id="btn-collapse">全部折叠</button>
+      <button id="btn-raw">原始 JSON</button>
+      <button id="btn-apply" style="display:none">应用修改</button>
+      <button class="primary" id="btn-save" disabled>保存</button>
+    </div>
+
+    <div id="editorwrap">
+      <div id="tree"></div>
+      <textarea id="raw" spellcheck="false"></textarea>
+    </div>
+
+    <div id="pathbar">
+      <span class="pb-label">路径</span>
+      <div id="pathbar-crumbs"></div>
+      <span class="pb-empty" id="pathbar-empty">点击树中的输入框，在此显示该项的 JSON 路径（悬停路径段可查看同级节点）</span>
+    </div>
+
+    <div id="importbar">
+      <label>Frontiers 目录</label>
+      <input type="text" id="frontiers">
+      <button class="danger" id="btn-import">写回游戏存档 (.sav)</button>
+      <span style="color:var(--muted);font-size:12px">与 CLI import 逻辑一致，原 .sav 自动备份为 .bak</span>
+    </div>
+    <div id="importlog"></div>
+  </main>
+</div>
+
+<div id="dlg-mask"></div>
+<div id="dlg">
+  <div id="dlg-head">
+    <span id="dlg-title">选择</span>
+    <span style="flex:1"></span>
+    <button id="dlg-refresh" title="重新读取外部 CSV 文件（绕过浏览器缓存）">刷新</button>
+    <button id="dlg-close" title="关闭">×</button>
+  </div>
+  <div id="dlg-body">
+    <input type="text" id="dlg-filter" placeholder="过滤数值或翻译…">
+    <div id="dlg-sortbar">
+      <span class="lbl">排序：</span>
+      <button id="dlg-sort-value" class="sortbtn" title="按数值/Key 原文排序（CSV 数据始终排在未翻译项前面）">原文</button>
+      <button id="dlg-sort-text" class="sortbtn" title="按中文翻译文本排序（CSV 数据始终排在未翻译项前面）">翻译</button>
+    </div>
+    <div id="dlg-form-hint" style="display:none;color:var(--muted);font-size:12px"></div>
+    <div id="dlg-form">
+      <input type="text" id="dlg-f-val" placeholder="数值（如 itemDataRow / affixName）">
+      <input type="text" id="dlg-f-text" placeholder="中文翻译">
+      <input type="color" id="dlg-f-color" value="#000000" title="翻译文字颜色：点选后自动填入右侧色值框">
+      <input type="text" id="dlg-f-color-hex" placeholder="#hex 或色名" title="翻译文字颜色（可选，写入 CSV 第三列）：#fff / #ff8800 / red …；留空=默认色（autoColor 规则命中时按规则自动配色）。翻译文本里还可用 <font color='#fff'>变色</font> 局部上色">
+      <button id="dlg-f-color-clear" title="清除本条翻译的颜色">清</button>
+      <button class="primary" id="dlg-f-ok" title="保存这一条翻译">确定</button>
+      <button id="dlg-f-cancel">取消</button>
+    </div>
+    <div id="dlg-list"></div>
+  </div>
+  <div id="dlg-foot">
+    <span id="dlg-count"></span>
+    <span style="flex:1"></span>
+    <button id="dlg-add" title="新增一条翻译（选中行会预填数值）">新增</button>
+    <button id="dlg-edit" title="修改选中项的翻译">修改</button>
+    <button id="dlg-del" title="删除列表中选中行的翻译（再点一次确认）">删除</button>
+    <button class="primary" id="dlg-save" title="把选中的值写回到存档对应字段">保存</button>
+  </div>
+  <div id="dlg-resize" title="拖动调整窗口大小（大小会记住，位置不记住）"></div>
+</div>
+
+<div id="add-mask"></div>
+<div id="add">
+  <div id="add-head">
+    <span id="add-title">添加</span>
+    <button id="add-close" title="关闭">×</button>
+  </div>
+  <div id="add-body">
+    <div id="add-hint"></div>
+    <input type="text" id="add-key" placeholder="字段名（对象时必填）">
+    <div id="add-types">
+      <button id="add-field" title="添加一个空值字段/元素">字段</button>
+      <button id="add-object" title="添加一个空对象 {}">对象</button>
+      <button id="add-array" title="添加一个空数组 []">数组</button>
+    </div>
+  </div>
+  <div id="add-foot">
+    <button id="add-cancel">取消</button>
+  </div>
+</div>
+
+<div id="confirm-mask"></div>
+<div id="confirm">
+  <div id="confirm-head">
+    <span id="confirm-title">确认</span>
+    <button id="confirm-close" title="关闭">×</button>
+  </div>
+  <div id="confirm-body">
+    <div id="confirm-msg"></div>
+  </div>
+  <div id="confirm-foot">
+    <button id="confirm-cancel">取消</button>
+    <button class="danger" id="confirm-ok">确认</button>
+  </div>
+</div>
+
+<div id="json-mask"></div>
+<div id="json">
+  <div id="json-head">
+    <span id="json-title">编辑 JSON</span>
+    <span style="flex:1"></span>
+    <button id="json-fmt" title="解析当前内容并重新格式化">格式化</button>
+    <button id="json-close" title="关闭">×</button>
+  </div>
+  <div id="json-body">
+    <textarea id="json-ta" spellcheck="false" placeholder="在此编辑 JSON…"></textarea>
+  </div>
+  <div id="json-foot">
+    <span id="json-hint"></span>
+    <span style="flex:1"></span>
+    <button id="json-cancel">取消</button>
+    <button class="primary" id="json-save" title="解析并写回原位置">保存</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<div id="pathmenu">
+  <div class="pm-head" id="pathmenu-head">同级节点</div>
+  <div class="pm-list" id="pathmenu-list"></div>
+</div>
+
+<script>
+"use strict";
+const $ = (s) => document.querySelector(s);
+
+const state = {
+  files: [],
+  current: null,
+  data: null,
+  cap: 0,
+  dirty: false,
+  collapsed: new Set(),
+  filter: "",
+  rawMode: false,
+  importArmed: false,
+};
+
+async function api(url, opts) {
+  const res = await fetch(url, opts || undefined);
+  let data = {};
+  try { data = await res.json(); } catch (e) {}
+  if (!res.ok) throw new Error(data.error || ("HTTP " + res.status));
+  return data;
+}
+
+let toastTimer = null;
+function toast(msg, isErr) {
+  const t = $("#toast");
+  t.textContent = msg;
+  t.className = "show" + (isErr ? " err" : "");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = ""; }, 3200);
+}
+
+function h(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined && text !== null) e.textContent = String(text);
+  return e;
+}
+
+function fmtSize(n) {
+  if (n < 1024) return n + " B";
+  if (n < 1024 * 1024) return (n / 1024).toFixed(1) + " KB";
+  return (n / 1024 / 1024).toFixed(2) + " MB";
+}
+
+function showBanner(html) {
+  const b = $("#banner");
+  b.innerHTML = "";
+  b.append(h("div", null, html));
+  b.append(h("div", null, "启动方式：双击项目里的 ui\\start-ui.bat，或在项目目录运行 node ui/server.js"));
+  b.className = "show";
+}
+
+/* ---------- file list ---------- */
+async function loadFiles() {
+  try {
+    const r = await api("/api/files");
+    state.files = r.files;
+    $("#datadir").textContent = r.dataDir;
+    renderFiles();
+  } catch (e) {
+    state.files = [];
+    renderFiles();
+    showBanner(String(e.message || e));
+  }
+}
+
+function renderFiles() {
+  const host = $("#filelist");
+  host.textContent = "";
+  if (!state.files.length) {
+    host.append(h("div", "side-empty",
+      state.current === null && !state.files.length
+        ? "目录为空或不存在。先运行 export 生成 JSON。"
+        : "没有 JSON 文件"));
+    return;
+  }
+  for (const f of state.files) {
+    const item = h("div", "file-item" + (f.name === state.current ? " active" : ""));
+    item.append(h("div", "fn", f.name));
+    const meta = h("div", "fs", fmtSize(f.size) + (f.valid === false ? " · 不参与写回" : ""));
+    if (f.valid === false) meta.title = "文件名不匹配工具支持的存档类型，写回时会被跳过";
+    item.append(meta);
+    item.onclick = () => {
+      if (f.name === state.current) return;
+      if (state.dirty) {
+        /* 不直接拒绝切换：弹窗询问是否放弃未保存的修改 */
+        askConfirm(
+          "放弃未保存的修改？",
+          "当前文件「" + state.current + "」有未保存的修改。\n切换到「" + f.name + "」会丢失这些修改。",
+          "放弃修改并切换",
+          () => openFile(f.name)
+        );
+        return;
+      }
+      openFile(f.name);
+    };
+    host.append(item);
+  }
+}
+
+/* ---------- open / save ---------- */
+async function openFile(name) {
+  try {
+    const r = await api("/api/file?name=" + encodeURIComponent(name));
+    state.current = r.name;
+    state.data = r.json;
+    state.cap = r.compactLength;
+    state.dirty = false;
+    state.collapsed = new Set();
+    clearPathBar(); // 切换文件后旧路径失效
+    collectTranslations(state.data);
+    $("#curfile").textContent = r.name;
+    $("#raw").value = JSON.stringify(r.json, null, 2);
+    setRawMode(false);
+    renderTree();
+    updateLen();
+    renderFiles();
+  } catch (e) {
+    toast("打开失败: " + (e.message || e), true);
+  }
+}
+
+function updateSaveBtn() {
+  $("#btn-save").disabled = !state.dirty || !state.current;
+  $("#dirtybadge").style.display = state.dirty ? "" : "none";
+}
+
+function updateLen() {
+  if (!state.data) return;
+  const len = JSON.stringify(state.data).length;
+  const el = $("#len");
+  el.textContent = "长度 " + len + " / 容量 " + state.cap + " 字节";
+  el.className = "badge " + (len > state.cap ? "over" : "ok");
+  if (len > state.cap) el.title = "超出容量：写回 .sav 会报 Content too large，请缩短内容";
+  updateSaveBtn();
+}
+
+function touch() {
+  state.dirty = true;
+  updateLen();
+}
+
+async function saveFile() {
+  if (!state.current || !state.data) return;
+  const content = JSON.stringify(state.data, null, 2);
+  try {
+    const r = await api("/api/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: state.current, content }),
+    });
+    state.dirty = false;
+    updateSaveBtn();
+    toast("已保存 " + state.current + "（备份 " + r.backup + "）");
+    loadFiles();
+  } catch (e) {
+    toast("保存失败: " + (e.message || e), true);
+  }
+}
+
+/* ---------- translations（动态 CSV 扫描） ----------
+ * 翻译数据是静态 CSV，放在 ui/data/ 下，可手工编辑。
+ * 页面启动时先向服务端索要该目录下的 CSV 清单（GET /api/translations/files），
+ * 每个文件名（去 .csv 后缀）就是一路翻译 Key：树中出现同名键即显示
+ * 翻译与「选」按钮。新增一个 csv 文件就自动多一路翻译，无需改代码。
+ *   affixName.csv   每行 「affixName,翻译」
+ *   itemDataRow.csv 每行 「itemDataRow,翻译」（角色物品行名）
+ *   rowName.csv     每行 「rowName,翻译」（据点装饰行名）
+ *   minionRowName.csv 每行 「minionRowName,翻译」（宠物行名）
+ * 首次打开页面读入缓存；外部文件更新后，点选择窗里的「刷新」重新读取。
+ * 选择窗里也可直接 新增/修改/删除，改动同步写回对应 CSV。
+ * --------------------------------------------------- */
+/* 翻译 Key 清单（真实大小写，来自 data 目录文件名） */
+let translationKinds = [];
+/* 翻译缓存：kind -> Map<原始值, 翻译> */
+const translations = {};
+/* 各 kind 的加载状态；false 时禁止写回（防空表误覆盖 CSV） */
+const translationsLoaded = {};
+/* 各 kind 的 CSV 头部注释参数（如 name: 附魔属性、color: 主题色）；可选，没有就不显示中文标签 */
+const translationMetas = {};
+/* 行级翻译颜色：kind -> Map<原始值, #hex>（CSV 行末第三列，可选） */
+const translationColors = {};
+/* autoColor 自动配色规则：GET /api/autocolor 解析而来，[{ color, re }, ...]，
+   按文件从上到下的顺序，首个命中的规则生效 */
+const autoColorRules = [];
+/* 会话内自学习：kind -> Map<值, 兜底标签>（CSV 未收录时显示；按 kind 隔离） */
+const knownValues = new Map();
+
+/* 键名 -> 翻译 kind（大小写不敏感）；data 目录没有对应 csv 时返回 null */
+function translationKindOf(key) {
+  const k = String(key).toLowerCase();
+  for (const kind of translationKinds) if (kind.toLowerCase() === k) return kind;
+  return null;
+}
+
+/* CSV 头部 # name: 参数声明的中文标签；未声明返回 null。
+   头部 # color: 是该 Key 的主题色：文字/描边用实色，背景用低透明度派生色 */
+function keyNameTag(kind) {
+  const m = kind && translationMetas[kind];
+  const nm = m && m.name;
+  if (!nm) return null;
+  const s = h("span", "kname", nm);
+  const c = m && m.color ? normColor(m.color) : null;
+  if (c) {
+    s.style.color = c;
+    s.style.borderColor = colorAlpha(c, 0.45, "");
+    s.style.background = colorAlpha(c, 0.1, "");
+    s.title = "「" + kind + "」的中文名（来自 " + kind + ".csv 头部 # name: 参数；主题色来自头部 # color: 参数，可手改 CSV 调整）";
+  } else {
+    s.title = "「" + kind + "」的中文名（来自 " + kind + ".csv 头部 # name: 参数，可手改 CSV 调整）";
+  }
+  return s;
+}
+
+/* CSV 头部 # isKey: true —— 纯 Key 翻译：只显示翻译文字，
+   不显示「选」按钮，未收录时也不显示「未翻译」占位 */
+function isKeyKind(kind) {
+  const m = kind && translationMetas[kind];
+  return !!m && String(m.isKey).trim().toLowerCase() === "true";
+}
+
+/* 会话内自学习：把存档里出现在各翻译 Key 下的值收进 knownValues，
+   CSV 未收录时兜底显示（宠物额外拼接自定义名） */
+function collectTranslations(root) {
+  (function walk(v) {
+    if (v === null || typeof v !== "object") return;
+    if (!Array.isArray(v)) {
+      for (const k of Object.keys(v)) {
+        const x = v[k];
+        const kind = translationKindOf(k);
+        /* 只收当前 kind 的未收录值：不同 Key（如 itemDataRow / affixName）的
+           未翻译项互不混入，picker 里按 kind 各列各的 */
+        if (kind && typeof x === "string" && x && x !== "None" &&
+            !(translations[kind] && translations[kind].has(x))) {
+          if (!knownValues.has(kind)) knownValues.set(kind, new Map());
+          if (!knownValues.get(kind).has(x)) knownValues.get(kind).set(x, x);
+        }
+      }
+      /* 宠物：行名 + 自定义名拼接成兜底标签 */
+      const petRow = typeof v.minionRowName === "string" ? v.minionRowName : "";
+      const petName = typeof v.petName === "string" ? v.petName : "";
+      const petKind = translationKindOf("minionRowName");
+      if (petRow && petName && petKind && !(translations[petKind] && translations[petKind].has(petRow))) {
+        if (!knownValues.has(petKind)) knownValues.set(petKind, new Map());
+        knownValues.get(petKind).set(petRow, petRow + " · " + petName);
+      }
+    }
+    for (const k of Object.keys(v)) {
+      const x = v[k];
+      if (x !== null && typeof x === "object") walk(x);
+    }
+  })(root);
+}
+
+/* 启动时拉取 data 目录的 CSV 清单，并全部载入缓存 */
+async function loadTranslationKinds() {
+  const res = await api("/api/translations/files");
+  const files = (res && res.files) || [];
+  translationKinds = files.map((f) => f.replace(/\.csv$/i, ""));
+  for (const kind of translationKinds) {
+    translations[kind] = new Map();
+    translationsLoaded[kind] = false;
+  }
+  for (const kind of translationKinds) await loadTranslations(kind);
+  await loadAutoColor(); // autoColor 规则库（可选）：翻译渲染前先就绪
+}
+
+/* ---------- 颜色工具 ---------- */
+/* 内置命名色板：#hex 之外的口语化写法（文件头 / 内联标签 / 表单都认） */
+const COLOR_NAMES = {
+  red: "#e53935", orange: "#fb8c00", amber: "#ffb300", yellow: "#f2b600",
+  green: "#43a047", teal: "#00acc1", blue: "#1e88e5", indigo: "#3949ab",
+  purple: "#8e24aa", pink: "#d81b60", brown: "#6d4c41", gray: "#757575",
+  gold: "#c9a227",
+};
+/* 颜色值标准化：#hex(3/4/6/8 位) 或命名色 → 小写 #hex；不合法返回 null */
+function normColor(v) {
+  const s = String(v == null ? "" : v).trim().toLowerCase();
+  if (!s) return null;
+  if (s.charAt(0) === "#") {
+    return /^#([0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/.test(s) ? s : null;
+  }
+  return COLOR_NAMES[s] || null;
+}
+/* #hex → rgba()：给主题色派生半透明背景/描边；输入不合法时返回 fallback */
+function colorAlpha(hex, a, fallback) {
+  const c = normColor(hex);
+  if (!c) return fallback;
+  let h = c.slice(1);
+  if (h.length === 3 || h.length === 4) h = h.replace(/[0-9a-f]/g, (ch) => ch + ch);
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  const al = h.length === 8 ? parseInt(h.slice(6, 8), 16) / 255 : 1;
+  return "rgba(" + r + "," + g + "," + b + "," + (al * a).toFixed(3) + ")";
+}
+/* 展开为 #rrggbb（input[type=color] 只认 6 位 hex） */
+function expandHex6(c) {
+  const v = normColor(c);
+  if (!v) return "#000000";
+  let h = v.slice(1);
+  if (h.length === 3 || h.length === 4) h = h.replace(/[0-9a-f]/g, (ch) => ch + ch);
+  return "#" + h.slice(0, 6);
+}
+
+/* 翻译文本内联上色，效果类似：
+   普通文本<font color="#fff">变色文本</font>普通文本
+   也兼容 <span style="color:#fff">变色</span>。
+   只放行这两种颜色标签，其余 < > 一律转义为普通文本（防注入） */
+const INLINE_TAG_RE = /<(\/)?(font|span)((?:\s[^>]*)?)>/gi;
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (ch) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+}
+/* 从标签属性里取颜色：font 取 color=，span 取 style 里的 color: */
+function inlineTagColor(attrs, tag) {
+  const a = String(attrs || "");
+  const pick = (re) => {
+    const m = a.match(re);
+    if (!m) return null;
+    return m[1] != null ? m[1] : m[2] != null ? m[2] : m[3];
+  };
+  if (tag === "font") {
+    return normColor(pick(/\bcolor\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i));
+  }
+  const style = pick(/\bstyle\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i);
+  if (!style) return null;
+  const cm = String(style).match(/(?:^|;)\s*color\s*:\s*([^;]+)/i);
+  return cm ? normColor(cm[1]) : null;
+}
+/* 翻译文本 → 安全 HTML：内联颜色标签保留，其余内容全部转义 */
+function inlineColorHtml(text) {
+  const s = String(text == null ? "" : text);
+  let out = "";
+  let last = 0;
+  let m;
+  INLINE_TAG_RE.lastIndex = 0;
+  while ((m = INLINE_TAG_RE.exec(s))) {
+    out += escapeHtml(s.slice(last, m.index));
+    const tag = m[2].toLowerCase();
+    if (m[1]) {
+      out += "</" + tag + ">";
+    } else {
+      const c = inlineTagColor(m[3], tag);
+      out += c
+        ? (tag === "font" ? '<font color="' + c + '">' : '<span style="color:' + c + '">')
+        : escapeHtml(m[0]); // 标签没有合法颜色属性 → 当普通文本显示
+    }
+    last = m.index + m[0].length;
+  }
+  return out + escapeHtml(s.slice(last));
+}
+/* 剥掉内联颜色标签、保留纯文本（tooltip / toast 用） */
+function stripInlineTags(s) {
+  return String(s == null ? "" : s).replace(INLINE_TAG_RE, "");
+}
+
+/* 解析 CSV 文本 → { map, meta, colors }
+   每行 value,text；# 开头为注释（# 参数名: 值 进 meta）；
+   翻译中可含逗号；行末第三列仅当整体是 #hex 时拆为行级颜色 */
+function parseCsv(text) {
+  const map = new Map();
+  const colors = new Map();
+  const meta = {};
+  for (const line of String(text || "").split(/\r?\n/)) {
+    const t = line.trim();
+    if (!t) continue;
+    if (t.charAt(0) === "#") {
+      /* 注释行可以是「参数声明」：# 参数名: 值（如 # name: 附魔属性）。
+         参数名必须是英文字母开头，描述性中文注释不会误命中 */
+      const m = t.replace(/^#+/, "").trim().match(/^([A-Za-z_]\w*)\s*[:：]\s*(.+)$/);
+      if (m) meta[m[1]] = m[2].trim();
+      continue;
+    }
+    const ci = t.indexOf(",");
+    if (ci <= 0) continue;
+    const v = t.slice(0, ci).trim();
+    let x = t.slice(ci + 1).trim();
+    /* 行末第三列颜色：只有最后一段是「字面 #hex」才算颜色列
+         （命名色不进第三列，避免把"翻译,带,逗号"误判成颜色）；
+         翻译含逗号不受影响 */
+    const li = x.lastIndexOf(",");
+    if (li > 0) {
+      const last = x.slice(li + 1).trim();
+      const c = normColor(last);
+      if (c && last.charAt(0) === "#") {
+        x = x.slice(0, li).trim();
+        colors.set(v, c);
+      }
+    }
+    if (v) map.set(v, x);
+  }
+  return { map, meta, colors };
+}
+
+/* 粗略判断正则片段是否"完整"：()、{}、[] 是否配平（考虑转义与字符类）。
+   JS 对游离括号宽容（a{1 是合法正则、匹配字面量），单看编译成败无法
+   识别被逗号切断的量词/字符类，用配平检查决定是否与后续列合并 */
+function regexBalanced(pat) {
+  let depth = 0, brace = 0, inClass = false;
+  for (let i = 0; i < pat.length; i++) {
+    const ch = pat.charAt(i);
+    if (ch === "\\") { i++; continue; }
+    if (inClass) { if (ch === "]") inClass = false; continue; }
+    if (ch === "[") inClass = true;
+    else if (ch === "]") return false;
+    else if (ch === "{") brace++;
+    else if (ch === "}") { brace--; if (brace < 0) return false; }
+    else if (ch === "(") depth++;
+    else if (ch === ")") { depth--; if (depth < 0) return false; }
+  }
+  return !inClass && brace === 0 && depth === 0;
+}
+
+/* 解析 autoColor.csv → [{ color, re }, ...]
+   每行「颜色,正则1,正则2,...」：
+   - 第一列是颜色值（#hex 或命名色），非法则整行跳过
+   - 第二列起是 JS 正则（不带斜杠与标志，大小写敏感），逐列编译，非法列跳过
+   - 逗号兼容：短列编译失败或括号不配平时，自动与后续列合并再试，
+     容忍 a{1,3} / [a,b] 这类含逗号的正则，无需手动转义
+   注意：#hex 颜色让规则行也以 # 开头，因此「首个逗号前是合法颜色」
+   优先于注释判定——只有不像规则的行才按注释跳过 */
+function parseAutoColor(text) {
+  const rules = [];
+  for (const line of String(text || "").split(/\r?\n/)) {
+    const t = line.trim();
+    if (!t) continue;
+    const ci = t.indexOf(",");
+    const color = ci > 0 ? normColor(t.slice(0, ci).trim()) : null;
+    if (!color) continue; // 注释行 / 首列颜色非法 → 跳过
+    const fields = t.slice(ci + 1).split(",").map((s) => s.trim());
+    let i = 0;
+    while (i < fields.length) {
+      if (!fields[i]) { i++; continue; } // 空列跳过（空正则会匹配一切，必须拦掉）
+      let done = false;
+      for (let j = i; j < fields.length; j++) {
+        const pat = fields.slice(i, j + 1).join(",");
+        if (!regexBalanced(pat)) continue; // 括号不配平 → 尝试与下一列合并
+        try {
+          rules.push({ color, re: new RegExp(pat) });
+          i = j + 1;
+          done = true;
+          break;
+        } catch (_) { /* 本段不合法：尝试与下一列合并 */ }
+      }
+      if (!done) i++; // 怎么合并都不合法 → 跳过该列
+    }
+  }
+  return rules;
+}
+
+/* 拉取 autoColor 规则库（ui/data/autoColor.csv）；文件不存在/加载失败 → 空规则。
+   规则库是可选增强，失败时静默降级，不影响翻译等其它功能 */
+async function loadAutoColor(force) {
+  try {
+    const url = "/api/autocolor" + (force ? "?_=" + Date.now() : "");
+    const res = await fetch(url, force ? { cache: "reload" } : undefined);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    autoColorRules.length = 0;
+    for (const r of parseAutoColor(await res.text())) autoColorRules.push(r);
+  } catch (e) {
+    autoColorRules.length = 0;
+    if (window.console && console.warn) console.warn("autoColor 规则加载失败：", e && e.message ? e.message : e);
+  }
+}
+
+/* autoColor 匹配：对剥掉内联标签后的翻译文本逐条测试，
+   首个命中的规则颜色即自动色；未命中返回 null */
+function autoColorOf(text) {
+  const plain = stripInlineTags(text || "");
+  if (!plain) return null;
+  for (const r of autoColorRules) {
+    if (r.re.test(plain)) return r.color;
+  }
+  return null;
+}
+
+/* 翻译文字的有效颜色：
+   行级第三列（显式设置）优先 → 已设置主题颜色，跳过 autoColor 匹配；
+   未设置时尝试 autoColor 正则；都没有返回 null */
+function effectiveColor(kind, value) {
+  const explicit = translationColors[kind] && translationColors[kind].get(value);
+  if (explicit) return explicit;
+  const t = translations[kind] && translations[kind].get(value);
+  return t ? autoColorOf(t) : null;
+}
+
+/* 读取翻译文件进缓存；force=true 时绕过浏览器缓存重新拉取（刷新按钮用） */
+async function loadTranslations(kind, force) {
+  const file = kind + ".csv";
+  if (!translationKinds.length || translationKinds.indexOf(kind) === -1) return;
+  try {
+    const url = "/api/translations?file=" + encodeURIComponent(file) + (force ? "&_=" + Date.now() : "");
+    const res = await fetch(url, force ? { cache: "reload" } : undefined);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const parsed = parseCsv(await res.text());
+    translations[kind] = parsed.map;
+    translationMetas[kind] = parsed.meta;
+    translationColors[kind] = parsed.colors;
+    translationsLoaded[kind] = true;
+  } catch (e) {
+    if (!translations[kind]) translations[kind] = new Map();
+    if (!translationColors[kind]) translationColors[kind] = new Map();
+    translationsLoaded[kind] = false;
+    toast("翻译文件加载失败（" + file + "）：" + (e.message || e) + "，CRUD 已停用，请点「刷新」重试", true);
+  }
+}
+
+/* 把当前缓存写回对应 CSV 文件 */
+async function persistTranslations(kind) {
+  const file = kind + ".csv";
+  if (!translationsLoaded[kind]) {
+    // 空表写入只会把 CSV 清成注释头——多半是加载失败后的误操作，直接拦下
+    throw new Error("翻译缓存为空（CSV 未加载成功），已阻止写入，请先点选择窗「刷新」");
+  }
+  const entries = [];
+  const cmap = translationColors[kind];
+  for (const [value, text] of translations[kind]) {
+    entries.push({ value, text, color: (cmap && cmap.get(value)) || "" });
+  }
+  return api("/api/translations", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ file, entries }),
+  });
+}
+
+/* 树中值翻译：key 命中某个 CSV kind 时显示翻译（未收录显示兜底/未翻译）。
+   color = 翻译文字的有效颜色（行级第三列优先，其次 autoColor 自动匹配） */
+function translateValue(kind, val) {
+  if (!kind || !translations[kind]) return { text: "", known: false, full: "", color: null };
+  const s = val === null ? "" : String(val);
+  if (!s) return { text: "", known: false, full: "", color: null };
+  const t = translations[kind].get(s);
+  if (t) return { text: t, known: true, full: s + " → " + t, color: effectiveColor(kind, s) };
+  const known = knownValues.get(s);
+  if (known) {
+    return { text: known + "（未翻译）", known: false, full: s + "（未翻译，可在选择窗「新增」）", color: null };
+  }
+  return { text: "未翻译", known: false, full: s + "（未翻译，可在选择窗「新增」）", color: null };
+}
+
+/* ---------- picker dialog（通用：kind 即 CSV 文件名去扩展名） ---------- */
+const picker = { kind: null, path: null, items: [], sel: null, formMode: null, formOrig: "", sortBy: "value" };
+
+/* 常见 kind 的友好标题，其余走通用文案 */
+const KIND_TITLES = {
+  itemDataRow: "选择物品行名 itemDataRow",
+  rowName: "选择据点装饰行名 rowName",
+  minionRowName: "选择宠物行名 minionRowName",
+  affixName: "选择词条 affixName",
+};
+
+/* 列表排序比较器：value=按原文 / text=按翻译文本（中文感知） */
+function pickerSortCmp(mode) {
+  if (mode === "text") {
+    return (a, b) => a.label.localeCompare(b.label, "zh") || a.value.localeCompare(b.value);
+  }
+  return (a, b) => a.value.localeCompare(b.value);
+}
+
+/* picker 列表 = 第一段全部 CSV 缓存条目 + 第二段当前 kind 的未翻译值。
+   两段内部各自按 picker.sortBy 排序，但 CSV 段恒在未翻译段前面 */
+function pickerItems(kind) {
+  const csvItems = [];
+  for (const [v, t] of translations[kind] || []) {
+    csvItems.push({
+      value: v,
+      label: t || "（未翻译）",
+      unknown: !t,
+      fromCsv: true,
+      /* 行级第三列优先；未设置时按 autoColor 正则自动配色 */
+      color: effectiveColor(kind, v) || "",
+    });
+  }
+  /* 存档里出现过、CSV 未收录的值也列出来（仅当前 kind），方便直接补翻译 */
+  const seen = new Set(csvItems.map((i) => i.value));
+  const unItems = [];
+  for (const [v, label] of knownValues.get(kind) || []) {
+    if (seen.has(v)) continue;
+    unItems.push({ value: v, label: label + "（未翻译）", unknown: true, fromCsv: false });
+  }
+  const cmp = pickerSortCmp(picker.sortBy);
+  csvItems.sort(cmp);
+  unItems.sort(cmp);
+  return csvItems.concat(unItems);
+}
+
+/* ---------- 选择窗窗口尺寸：右下角把手拖动调整，大小存 localStorage（不存位置） ---------- */
+const PICKER_SIZE_KEY = "tl3-picker-size";
+const PICKER_DEFAULT_W = 640; /* 默认宽度：桌面 640，窄屏让位视口 */
+const PICKER_MIN_H = 300; /* 最小高度：保证头部/过滤/列表/底部不全被压扁 */
+/* 默认宽度（与 CSS min(640px, 92vw) 一致） */
+function defaultDialogWidth() {
+  const vw = typeof innerWidth === "number" ? innerWidth : 1280;
+  return Math.min(PICKER_DEFAULT_W, Math.round(vw * 0.92));
+}
+/* 读取记忆的尺寸；无记录 / 损坏 / 异常小 → null */
+function loadPickerSize() {
+  try {
+    const raw = localStorage.getItem(PICKER_SIZE_KEY);
+    if (!raw) return null;
+    const o = JSON.parse(raw);
+    const w = Number(o && o.w), h = Number(o && o.h);
+    if (!isFinite(w) || !isFinite(h) || w < 200 || h < 200) return null;
+    return { w: Math.round(w), h: Math.round(h) };
+  } catch (_) {
+    return null;
+  }
+}
+/* 只记录尺寸大小（不记位置）；隐私模式等写入失败时静默降级 */
+function savePickerSize(w, h) {
+  try {
+    localStorage.setItem(PICKER_SIZE_KEY, JSON.stringify({ w: Math.round(w), h: Math.round(h) }));
+  } catch (_) { /* 不记大小也能正常用 */ }
+}
+/* 夹紧：宽 ∈ [默认宽, 视口-16]，高 ∈ [300, 78vh]。
+   默认宽度即最小宽度——防止组件空间不足，也给宽窗 flex 规则一个明确分界 */
+function clampPickerSize(w, h) {
+  const vw = typeof innerWidth === "number" ? innerWidth : 1280;
+  const vh = typeof innerHeight === "number" ? innerHeight : 800;
+  const minW = defaultDialogWidth();
+  const maxW = Math.max(minW, vw - 16);
+  const minH = PICKER_MIN_H;
+  const maxH = Math.max(minH, Math.floor(vh * 0.78));
+  return {
+    w: Math.max(minW, Math.min(maxW, Math.round(w))),
+    h: Math.max(minH, Math.min(maxH, Math.round(h))),
+  };
+}
+/* 打开时恢复记忆尺寸（无记录用 CSS 默认），并按宽度切 wide（表单 flex）/ sized（列表吃高度） */
+function applyPickerSize(dlgEl) {
+  const defW = defaultDialogWidth();
+  const saved = loadPickerSize();
+  const sz = saved ? clampPickerSize(saved.w, saved.h) : null;
+  if (sz) {
+    dlgEl.style.width = sz.w + "px";
+    dlgEl.style.height = sz.h + "px";
+    dlgEl.classList.add("sized");
+  } else {
+    dlgEl.style.width = "";
+    dlgEl.style.height = "";
+    dlgEl.classList.remove("sized");
+  }
+  /* 当前（默认）宽度设为最小宽度，防止空间不足 */
+  dlgEl.style.minWidth = defW + "px";
+  dlgEl.classList.toggle("wide", !!sz && sz.w > defW);
+  dlgEl.style.left = Math.max(8, (innerWidth - (sz ? sz.w : defW)) / 2) + "px";
+  dlgEl.style.top = "15%";
+}
+
+function openPicker(kind, p, cur) {
+  picker.kind = kind;
+  picker.path = p;
+  picker.items = pickerItems(kind);
+  picker.sel = picker.items.find((it) => it.value === cur) || null;
+  $("#dlg-title").textContent = (KIND_TITLES[kind] || "选择 " + kind + " 的翻译") +
+    (translationMetas[kind] && translationMetas[kind].name ? "（" + translationMetas[kind].name + "）" : "");
+  $("#dlg-filter").value = "";
+  updateSortButtons();
+  hideDlgForm();
+  renderPickerList();
+  const dlgEl = $("#dlg");
+  dlgEl.style.transform = "none";
+  applyPickerSize(dlgEl);
+  dlgEl.classList.add("show");
+  $("#dlg-mask").classList.add("show");
+  $("#dlg-filter").focus();
+}
+
+/* 用户正在划选文字时，行的点击/双击不应改变选中或触发回写 */
+function hasTextSelection() {
+  const s = window.getSelection && window.getSelection();
+  return !!s && s.toString().length > 0;
+}
+
+/* 修改 / 删除只作用于列表里选中的单条；未选中时禁用 */
+function updateCrudButtons() {
+  const noRow = !picker.sel;
+  $("#dlg-edit").disabled = noRow;
+  $("#dlg-del").disabled = noRow;
+}
+
+/* 排序切换按钮的高亮状态（不重载列表） */
+function updateSortButtons() {
+  $("#dlg-sort-value").classList.toggle("sel", picker.sortBy !== "text");
+  $("#dlg-sort-text").classList.toggle("sel", picker.sortBy === "text");
+}
+
+/* 切换排序方式并重载列表（CSV 段仍恒在未翻译段前面） */
+function setPickerSort(mode) {
+  if (picker.sortBy === mode) return;
+  picker.sortBy = mode;
+  updateSortButtons();
+  picker.items = pickerItems(picker.kind);
+  renderPickerList();
+}
+
+function renderPickerList() {
+  const host = $("#dlg-list");
+  const keepScroll = host.scrollTop; // 重建 DOM 前记住滚动位置，避免点底部行时列表跳顶
+  host.textContent = "";
+  const q = $("#dlg-filter").value.trim().toLowerCase();
+  const items = q
+    ? picker.items.filter((it) => (it.value + " " + stripInlineTags(it.label)).toLowerCase().indexOf(q) !== -1)
+    : picker.items;
+  $("#dlg-count").textContent = items.length + " / " + picker.items.length + " 项";
+  if (!items.length) {
+    host.append(h("div", "dlg-empty", "没有匹配项"));
+  } else {
+    for (const it of items) {
+      const row = h("div", "dlg-item" + (picker.sel && picker.sel.value === it.value ? " sel" : ""));
+      row.append(h("span", "v", it.value));
+      /* 翻译文字：有效颜色（行级第三列优先，其次 autoColor 自动匹配）作为
+         文字色，文本里的 <font color> / <span style="color:"> 可局部覆盖 */
+      const t = h("span", "t" + (it.unknown ? " unknown" : ""));
+      if (it.color && !it.unknown) t.style.color = it.color;
+      t.innerHTML = inlineColorHtml(it.label);
+      row.append(t);
+      row.title = it.value + " — " + stripInlineTags(it.label);
+      /* 单击选中：只切 class，不重建 DOM（不破坏文字划选、不跳滚动） */
+      row.onclick = () => {
+        if (hasTextSelection()) return;
+        picker.sel = it;
+        for (const el of host.children) el.classList.remove("sel");
+        row.classList.add("sel");
+        updateCrudButtons();
+      };
+      row.ondblclick = () => { if (hasTextSelection()) return; picker.sel = it; savePicker(); };
+      host.append(row);
+    }
+  }
+  host.scrollTop = keepScroll;
+  updateCrudButtons();
+}
+
+function savePicker() {
+  if (!picker.sel || !picker.path) return;
+  const val = picker.sel.value;
+  const label = picker.sel.label;
+  const cur = getPath(picker.path);
+  let v = val;
+  if (typeof cur === "number") {
+    const n = Number(val);
+    if (!Number.isNaN(n)) v = n;
+  }
+  setPath(picker.path, v);
+  touch();
+  closePicker();
+  renderTree();
+  toast("已写入「" + val + "」" + (label ? "（" + stripInlineTags(label) + "）" : "") + "，记得点保存");
+}
+
+/* ---------- 翻译 CRUD（新增/修改/删除，写回缓存并同步 CSV） ---------- */
+function hideDlgForm() {
+  picker.formMode = null;
+  picker.formOrig = "";
+  disarmDelete();
+  $("#dlg-form").style.display = "none";
+  $("#dlg-form-hint").style.display = "none";
+  $("#dlg-f-val").value = "";
+  $("#dlg-f-text").value = "";
+  $("#dlg-f-color-hex").value = "";
+  $("#dlg-f-color").value = "#000000";
+}
+
+function showDlgForm(mode, value, text, color) {
+  picker.formMode = mode;
+  picker.formOrig = value || "";
+  $("#dlg-f-val").value = value || "";
+  $("#dlg-f-text").value = text || "";
+  const c = normColor(color) || "";
+  $("#dlg-f-color-hex").value = c;
+  $("#dlg-f-color").value = c ? expandHex6(c) : "#000000";
+  const hint = $("#dlg-form-hint");
+  if (mode === "edit") {
+    /* 颜色提示：显式第三列优先；没有显式色但 autoColor 命中时告知当前是自动色 */
+    let extra = "";
+    if (c) extra = "（颜色 " + c + "）";
+    else if (text) {
+      const auto = autoColorOf(text);
+      if (auto) extra = "（autoColor 自动色 " + auto + "）";
+    }
+    hint.textContent = "正在修改这一条：" + (value || "") + " → " + (text || "（未翻译）") + extra;
+  } else {
+    hint.textContent = value
+      ? "新增翻译（数值已按选中行预填，可改）"
+      : "新增一条翻译：填写数值与中文翻译";
+  }
+  hint.style.display = "";
+  $("#dlg-form").style.display = "flex";
+  $("#dlg-f-val").focus();
+}
+
+function dlgAdd() {
+  // 新增：若已选中某行则预填其数值，方便给"未翻译"项补翻译
+  const pre = picker.sel ? picker.sel.value : "";
+  const cmap = translationColors[picker.kind];
+  showDlgForm("add", pre,
+    pre ? (translations[picker.kind].get(pre) || "") : "",
+    pre && cmap ? (cmap.get(pre) || "") : "");
+}
+
+function dlgEdit() {
+  if (!picker.sel) { toast("请先在列表中选中一项", true); return; }
+  const v = picker.sel.value;
+  /* 只回填显式颜色（CSV 第三列）：autoColor 自动色不算"已设置"，
+     保存时不指定颜色仍走自动匹配 */
+  const cmap = translationColors[picker.kind];
+  showDlgForm("edit", v,
+    translations[picker.kind].get(v) || "",
+    (cmap && cmap.get(v)) || "");
+}
+
+/* 删除：两段式确认（与"解析存档"一致的内嵌交互，不依赖 confirm） */
+let delArmed = false, delTimer = null;
+function disarmDelete() {
+  delArmed = false;
+  if (delTimer) { clearTimeout(delTimer); delTimer = null; }
+  const btn = $("#dlg-del");
+  if (btn) { btn.textContent = "删除"; btn.className = ""; }
+}
+async function dlgDelete() {
+  if (!picker.sel) { toast("请先在列表中选中一项", true); return; }
+  const v = picker.sel.value;
+  const btn = $("#dlg-del");
+  if (!delArmed) {
+    delArmed = true;
+    const short = v.length > 18 ? v.slice(0, 9) + "…" + v.slice(-6) : v;
+    btn.textContent = "确认删除「" + short + "」？再点一次";
+    btn.className = "danger";
+    delTimer = setTimeout(disarmDelete, 4000);
+    return;
+  }
+  disarmDelete();
+  translations[picker.kind].delete(v);
+  const cmap = translationColors[picker.kind];
+  if (cmap) cmap.delete(v);
+  try {
+    await persistTranslations(picker.kind);
+    toast("已删除并写入 " + picker.kind + ".csv");
+  } catch (e) {
+    await loadTranslations(picker.kind, true); // 失败则回滚为文件真实内容
+    toast("删除失败: " + (e.message || e), true);
+    return;
+  }
+  picker.sel = null;
+  refreshPickerItems();
+}
+
+async function dlgFormOk() {
+  const v = $("#dlg-f-val").value.trim().replace(/,/g, "");
+  const t = $("#dlg-f-text").value.trim();
+  const color = normColor($("#dlg-f-color-hex").value.trim()) || "";
+  if (!v) { toast("数值不能为空", true); return; }
+  if (/[\r\n]/.test(v)) { toast("数值含非法字符", true); return; }
+  const map = translations[picker.kind];
+  const cmap = translationColors[picker.kind] || (translationColors[picker.kind] = new Map());
+  const isEdit = picker.formMode === "edit";
+  const orig = picker.formOrig;
+  if (!isEdit && map.has(v)) { toast("该数值已有翻译，请改用「修改」", true); return; }
+  if (isEdit && v !== orig) {
+    if (map.has(v)) { toast("已存在同数值的翻译", true); return; }
+    map.delete(orig);
+    cmap.delete(orig);
+  }
+  map.set(v, t);
+  if (color) cmap.set(v, color); else cmap.delete(v);
+  try {
+    await persistTranslations(picker.kind);
+    toast((isEdit ? "已修改" : "已新增") + "并写入 " + picker.kind + ".csv");
+  } catch (e) {
+    await loadTranslations(picker.kind, true);
+    toast("保存失败: " + (e.message || e), true);
+    return;
+  }
+  hideDlgForm();
+  refreshPickerItems();
+}
+
+/* CRUD / 刷新后重建列表，并刷新树上的翻译显示 */
+function refreshPickerItems() {
+  picker.items = pickerItems(picker.kind);
+  renderPickerList();
+  renderTree();
+}
+
+async function dlgRefresh() {
+  await loadTranslations(picker.kind, true);
+  await loadAutoColor(true); // 规则库也可能刚被手改过，一起重读
+  refreshPickerItems();
+  toast("已重新读取 " + picker.kind + ".csv（" + translations[picker.kind].size + " 条）" +
+    (autoColorRules.length ? "，autoColor 规则 " + autoColorRules.length + " 条" : ""));
+}
+
+function closePicker() {
+  $("#dlg").classList.remove("show");
+  $("#dlg-mask").classList.remove("show");
+  picker.path = null;
+  picker.sel = null;
+  hideDlgForm();
+}
+
+/* 弹窗拖动统一在 makeDraggable（见文件末尾绑定区） */
+
+/* ---------- tree editor ---------- */
+function getPath(p) {
+  return p.reduce((o, k) => (o === null || o === undefined ? undefined : o[k]), state.data);
+}
+function parentOf(p) {
+  return getPath(p.slice(0, -1));
+}
+function setPath(p, v) {
+  const parent = parentOf(p);
+  if (parent !== undefined && parent !== null) parent[p[p.length - 1]] = v;
+}
+function delPath(p) {
+  const parent = parentOf(p);
+  if (parent === undefined || parent === null) return;
+  if (Array.isArray(parent)) parent.splice(Number(p[p.length - 1]), 1);
+  else delete parent[p[p.length - 1]];
+}
+/* ---------- 添加元素/字段（类型三选：字段/对象/数组） ----------
+ * 不用 prompt()：内嵌预览面板会抑制 prompt/confirm，表现为"点了没反应" */
+let addTarget = null; // { path, isArray }
+
+function openAddDialog(p) {
+  const target = getPath(p);
+  if (target === null || target === undefined || typeof target !== "object") return;
+  addTarget = { path: p, isArray: Array.isArray(target) };
+  $("#add-title").textContent = addTarget.isArray ? "向数组追加元素" : "向对象添加字段";
+  $("#add-hint").textContent = addTarget.isArray
+    ? "选择要追加的元素类型（字段 = 空值）："
+    : "填写字段名，并选择值的类型（字段 = 空值）：";
+  $("#add-key").style.display = addTarget.isArray ? "none" : "";
+  $("#add-key").value = "";
+  const el = $("#add");
+  el.style.transform = "none";
+  el.style.left = Math.max(8, (innerWidth - 380) / 2) + "px";
+  el.style.top = "22%";
+  el.classList.add("show");
+  $("#add-mask").classList.add("show");
+  (addTarget.isArray ? $("#add-field") : $("#add-key")).focus();
+}
+
+function closeAddDialog() {
+  $("#add").classList.remove("show");
+  $("#add-mask").classList.remove("show");
+  addTarget = null;
+}
+
+function confirmAdd(kind) {
+  if (!addTarget) return;
+  const target = getPath(addTarget.path);
+  if (target === null || target === undefined || typeof target !== "object") {
+    closeAddDialog();
+    return;
+  }
+  let v = null;
+  if (kind === "object") v = {};
+  else if (kind === "array") v = [];
+  if (Array.isArray(target)) {
+    target.push(v);
+  } else {
+    const key = $("#add-key").value.trim();
+    if (!key) { toast("请先输入字段名", true); $("#add-key").focus(); return; }
+    if (Object.prototype.hasOwnProperty.call(target, key)) {
+      toast("字段「" + key + "」已存在", true);
+      $("#add-key").focus();
+      return;
+    }
+    target[key] = v;
+  }
+  state.collapsed.delete(JSON.stringify(addTarget.path));
+  closeAddDialog();
+  renderTree();
+  touch();
+}
+
+/* ---------- 通用确认对话框（放弃未保存修改等；不依赖 confirm()） ---------- */
+let confirmOk = null;
+function askConfirm(title, msg, okText, onOk) {
+  confirmOk = onOk;
+  $("#confirm-title").textContent = title || "确认";
+  $("#confirm-msg").textContent = msg || "";
+  $("#confirm-ok").textContent = okText || "确认";
+  const el = $("#confirm");
+  el.style.transform = "none";
+  el.style.left = Math.max(8, (innerWidth - 440) / 2) + "px";
+  el.style.top = "26%";
+  el.classList.add("show");
+  $("#confirm-mask").classList.add("show");
+  $("#confirm-ok").focus();
+}
+function closeConfirm() {
+  $("#confirm").classList.remove("show");
+  $("#confirm-mask").classList.remove("show");
+  confirmOk = null;
+}
+
+/* ---------- 克隆：深拷贝一份，插到被克隆项后面 ---------- */
+function cloneNode(p) {
+  const parent = parentOf(p);
+  const last = p[p.length - 1];
+  const src = getPath(p);
+  if (src === undefined || parent === undefined || parent === null) return;
+  let copy;
+  try {
+    copy = JSON.parse(JSON.stringify(src));
+  } catch (e) {
+    toast("克隆失败: " + (e.message || e), true);
+    return;
+  }
+  if (Array.isArray(parent)) {
+    const i = Number(last);
+    if (!Number.isInteger(i) || i < 0 || i >= parent.length) return;
+    parent.splice(i + 1, 0, copy);
+    state.collapsed.delete(JSON.stringify(p.slice(0, -1)));
+    touch();
+    renderTree();
+    toast("已克隆，副本插到原元素后面");
+    return;
+  }
+  if (parent && typeof parent === "object") {
+    const key = String(last);
+    if (!Object.prototype.hasOwnProperty.call(parent, key)) return;
+    const has = (k) => Object.prototype.hasOwnProperty.call(parent, k);
+    let nk = key + "_copy";
+    if (has(nk)) {
+      let i = 2;
+      while (has(nk + i)) i++;
+      nk = nk + i;
+    }
+    /* 重建对象以保持键序：新键插到原键正后面 */
+    const entries = [];
+    for (const [k, v] of Object.entries(parent)) {
+      entries.push([k, v]);
+      if (k === key) entries.push([nk, copy]);
+    }
+    for (const k of Object.keys(parent)) delete parent[k];
+    for (const [k, v] of entries) parent[k] = v;
+    state.collapsed.delete(JSON.stringify(p.slice(0, -1)));
+    touch();
+    renderTree();
+    toast("已克隆为「" + nk + "」，插到原字段后面");
+    return;
+  }
+}
+
+/* ---------- 局部 JSON 编辑（数组/对象） ---------- */
+let jsonEditPath = null;
+
+function jsonHint(text, isErr) {
+  const el = $("#json-hint");
+  el.textContent = text || "";
+  el.className = isErr ? "err" : "";
+}
+
+function openJsonEditor(p) {
+  const v = getPath(p);
+  if (v === null || typeof v !== "object") {
+    toast("只有数组 / 对象才能编辑 JSON", true);
+    return;
+  }
+  jsonEditPath = p;
+  $("#json-title").textContent = "编辑 JSON：" + String(p[p.length - 1]) + (Array.isArray(v) ? "（数组）" : "（对象）");
+  $("#json-ta").value = JSON.stringify(v, null, 2);
+  jsonHint("保存后自动写回原位置并刷新结构树", false);
+  const el = $("#json");
+  el.style.transform = "none";
+  el.style.left = Math.max(8, (innerWidth - 780) / 2) + "px";
+  el.style.top = "10%";
+  el.classList.add("show");
+  $("#json-mask").classList.add("show");
+  $("#json-ta").focus();
+}
+
+function closeJsonEditor() {
+  $("#json").classList.remove("show");
+  $("#json-mask").classList.remove("show");
+  jsonEditPath = null;
+}
+
+function fmtJsonEditor() {
+  try {
+    const v = JSON.parse($("#json-ta").value);
+    $("#json-ta").value = JSON.stringify(v, null, 2);
+    jsonHint("已格式化", false);
+  } catch (e) {
+    jsonHint("JSON 解析失败：" + (e.message || e), true);
+  }
+}
+
+function saveJsonEditor() {
+  if (!jsonEditPath) return;
+  let v;
+  try {
+    v = JSON.parse($("#json-ta").value);
+  } catch (e) {
+    jsonHint("JSON 解析失败：" + (e.message || e) + "（请修正后再保存）", true);
+    return;
+  }
+  if (v === null || typeof v !== "object") {
+    jsonHint("顶层必须是对象或数组（与原始类型一致）", true);
+    return;
+  }
+  const before = getPath(jsonEditPath);
+  if (before !== null && typeof before === "object" && Array.isArray(before) !== Array.isArray(v)) {
+    jsonHint("原始是" + (Array.isArray(before) ? "数组" : "对象") + "，不能整体改成" + (Array.isArray(v) ? "数组" : "对象"), true);
+    return;
+  }
+  setPath(jsonEditPath, v);
+  touch();
+  renderTree();
+  updateLen();
+  const len = JSON.stringify(state.data).length;
+  closeJsonEditor();
+  if (len > state.cap) {
+    toast("已写回，但总长度 " + len + " 超出容量 " + state.cap + " 字节，需精简后才能写回 .sav", true);
+  } else {
+    toast("已写回原位置（记得点保存）");
+  }
+}
+
+/* 对话框拖动工厂：按住标题栏空白处拖动（点按钮不拖动） */
+function makeDraggable(el, head) {
+  if (!el || !head) return;
+  let off = null;
+  head.addEventListener("pointerdown", (e) => {
+    if (e.target && e.target.tagName === "BUTTON") return;
+    const r = el.getBoundingClientRect();
+    off = { x: e.clientX - r.left, y: e.clientY - r.top };
+    head.setPointerCapture(e.pointerId);
+  });
+  head.addEventListener("pointermove", (e) => {
+    if (!off) return;
+    const r = el.getBoundingClientRect();
+    let x = e.clientX - off.x, y = e.clientY - off.y;
+    x = Math.max(0, Math.min(x, innerWidth - r.width));
+    y = Math.max(0, Math.min(y, innerHeight - 40));
+    el.style.left = x + "px";
+    el.style.top = y + "px";
+  });
+  head.addEventListener("pointerup", () => { off = null; });
+  head.addEventListener("pointercancel", () => { off = null; });
+}
+makeDraggable($("#dlg"), $("#dlg-head"));
+makeDraggable($("#add"), $("#add-head"));
+makeDraggable($("#json"), $("#json-head"));
+makeDraggable($("#confirm"), $("#confirm-head"));
+
+/* 选择窗右下角把手：拖动调整宽高（宽≥默认宽、高≥300，松手把尺寸存入 localStorage） */
+function initPickerResize() {
+  const el = $("#dlg"), grip = $("#dlg-resize");
+  if (!el || !grip) return;
+  let st = null;
+  grip.onpointerdown = (e) => {
+    if (e.button !== undefined && e.button !== 0) return;
+    if (e.preventDefault) e.preventDefault();
+    const r = el.getBoundingClientRect();
+    st = { x: e.clientX, y: e.clientY, w: r.width, h: r.height };
+    if (grip.setPointerCapture) grip.setPointerCapture(e.pointerId);
+  };
+  grip.onpointermove = (e) => {
+    if (!st) return;
+    const sz = clampPickerSize(st.w + (e.clientX - st.x), st.h + (e.clientY - st.y));
+    el.style.width = sz.w + "px";
+    el.style.height = sz.h + "px";
+    el.classList.add("sized");
+    el.classList.toggle("wide", sz.w > defaultDialogWidth());
+  };
+  const endDrag = () => {
+    if (!st) return;
+    st = null;
+    const r = el.getBoundingClientRect();
+    savePickerSize(r.width, r.height);
+  };
+  grip.onpointerup = endDrag;
+  grip.onpointercancel = () => { st = null; };
+}
+initPickerResize();
+
+function nodeVisible(key, val, q) {
+  const own = (key + " " + (val !== null && typeof val === "object" ? "" : String(val))).toLowerCase();
+  if (own.indexOf(q) !== -1) return true;
+  if (val !== null && typeof val === "object") {
+    const entries = Array.isArray(val) ? val.map((v, i) => [i, v]) : Object.entries(val);
+    return entries.some(([k, v]) => nodeVisible(String(k), v, q));
+  }
+  return false;
+}
+
+/* 同级上下移动（对象属性重排 / 数组元素交换） */
+function moveKey(p, dir) {
+  const parent = parentOf(p);
+  if (parent === undefined || parent === null) return;
+  const last = p[p.length - 1];
+  if (Array.isArray(parent)) {
+    const i = Number(last);
+    const j = i + dir;
+    if (j < 0 || j >= parent.length) return;
+    const tmp = parent[i];
+    parent[i] = parent[j];
+    parent[j] = tmp;
+  } else if (parent && typeof parent === "object") {
+    const keys = Object.keys(parent);
+    const i = keys.indexOf(String(last));
+    if (i < 0) return;
+    const j = i + dir;
+    if (j < 0 || j >= keys.length) return;
+    const entries = Object.entries(parent);
+    const t = entries[i];
+    entries[i] = entries[j];
+    entries[j] = t;
+    for (const k of Object.keys(parent)) delete parent[k];
+    for (const [k, v] of entries) parent[k] = v;
+  } else {
+    return;
+  }
+  touch();
+  renderTree();
+}
+
+function appendMoveButtons(row, p) {
+  const parent = parentOf(p);
+  let idx = -1, count = 0;
+  if (Array.isArray(parent)) {
+    idx = Number(p[p.length - 1]);
+    count = parent.length;
+  } else if (parent && typeof parent === "object") {
+    const ks = Object.keys(parent);
+    idx = ks.indexOf(String(p[p.length - 1]));
+    count = ks.length;
+  }
+  const up = h("button", "mini", "↑");
+  up.title = "上移（同级）";
+  up.disabled = idx <= 0;
+  up.onclick = () => moveKey(p, -1);
+  const dn = h("button", "mini", "↓");
+  dn.title = "下移（同级）";
+  dn.disabled = idx < 0 || idx >= count - 1;
+  dn.onclick = () => moveKey(p, 1);
+  row.append(up, dn);
+}
+
+/* 双击键名就地重命名（仅对象属性；数组元素不可重命名） */
+function makeRenameable(span, key, p) {
+  const parent = parentOf(p);
+  if (!parent || typeof parent !== "object" || Array.isArray(parent)) return;
+  span.classList.add("dbl");
+  span.title = "双击重命名";
+  span.ondblclick = (e) => {
+    e.stopPropagation();
+    const inp = h("input", "rename-in");
+    inp.type = "text";
+    inp.value = String(key);
+    span.replaceWith(inp);
+    inp.focus();
+    inp.select();
+    let closed = false;
+    const finish = (commit) => {
+      if (closed) return;
+      closed = true;
+      if (commit) {
+        const nk = inp.value.trim();
+        if (nk && nk !== String(key)) {
+          if (Object.prototype.hasOwnProperty.call(parent, nk)) {
+            toast("已存在同名字段「" + nk + "」，取消重命名", true);
+          } else {
+            const entries = Object.entries(parent).map(([k, v]) => [k === String(key) ? nk : k, v]);
+            for (const k of Object.keys(parent)) delete parent[k];
+            for (const [k, v] of entries) parent[k] = v;
+            touch();
+          }
+        }
+      }
+      renderTree();
+    };
+    inp.onkeydown = (ev) => {
+      ev.stopPropagation();
+      if (ev.key === "Enter") finish(true);
+      else if (ev.key === "Escape") finish(false);
+    };
+    inp.onblur = () => finish(true);
+  };
+}
+
+function renderTree() {
+  const host = $("#tree");
+  host.textContent = "";
+  nodeIndex.clear();
+  if (state.data === null || typeof state.data !== "object") {
+    host.append(h("div", "empty", state.current ? "该文件顶层不是 JSON 对象" : "从左侧选择一个文件"));
+    return;
+  }
+  const q = state.filter;
+  const entries = Array.isArray(state.data)
+    ? state.data.map((v, i) => [i, v])
+    : Object.entries(state.data);
+  let shown = 0;
+  for (const [k, v] of entries) {
+    if (q && !nodeVisible(String(k), v, q)) continue;
+    host.append(renderNode(k, v, [k], 0));
+    shown++;
+  }
+  if (!shown) host.append(h("div", "empty", "没有匹配 “" + state.filter + "” 的内容"));
+  /* 路径面包屑跟随重渲染（翻译文字/数据可能已变）；
+     路径已失效（所在层级被删除等）则清空 */
+  if (pathbar.path && getPath(pathbar.path) === undefined) clearPathBar();
+  else if (pathbar.path) renderPathBar();
+}
+
+function renderNode(key, val, p, depth) {
+  const wrap = h("div", "node");
+  nodeIndex.set(pathKeyOf(p), wrap); // 路径段跳转查找用
+  const row = h("div", "row");
+  row.style.paddingLeft = depth * 14 + "px";
+  /* 点击行空白/键名处也刷新路径栏（按钮与输入框不拦截，各自有自己的逻辑） */
+  row.onclick = (e) => {
+    const t = e && e.target;
+    if (t && (t.tagName === "BUTTON" || t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
+    showPathBar(p);
+  };
+
+  const isObj = val !== null && typeof val === "object";
+  if (isObj) {
+    const pKey = JSON.stringify(p);
+    const collapsed = state.filter ? false : state.collapsed.has(pKey);
+    const tw = h("button", "tw", collapsed ? "▸" : "▾");
+    tw.onclick = () => {
+      if (state.collapsed.has(pKey)) state.collapsed.delete(pKey);
+      else state.collapsed.add(pKey);
+      renderTree();
+    };
+    row.append(tw);
+    const keySpan = h("span", "key", String(key));
+    makeRenameable(keySpan, key, p);
+    row.append(keySpan);
+    const objKind = translationKindOf(key);
+    if (objKind) { const nt = keyNameTag(objKind); if (nt) row.append(nt); }
+    const isArr = Array.isArray(val);
+    row.append(h("span", "cnt", isArr ? val.length + " 项" : Object.keys(val).length + " 键"));
+    const add = h("button", "mini", isArr ? "+ 元素" : "+ 字段");
+    add.title = isArr ? "追加一个元素（字段/对象/数组）" : "添加字段（字段/对象/数组）";
+    add.onclick = () => openAddDialog(p);
+    row.append(add);
+    const clone = h("button", "mini", "⧉");
+    clone.title = "克隆此项（深拷贝一份，插到本项后面）";
+    clone.onclick = () => cloneNode(p);
+    row.append(clone);
+    appendMoveButtons(row, p);
+    /* 删除整个数组/对象（含全部子项，需确认） */
+    const del = h("button", "mini", "×");
+    del.title = "删除整个" + (isArr ? "数组" : "对象") + "（含全部子项，需确认）";
+    del.onclick = () => {
+      const n = isArr ? val.length : Object.keys(val).length;
+      askConfirm(
+        "删除" + (isArr ? "数组" : "对象") + "「" + String(key) + "」？",
+        "将删除其下 " + n + " 个" + (isArr ? "元素" : "字段") + "。\n删除后需点「保存」才会写回磁盘；不保存重新打开文件即可恢复。",
+        "删除",
+        () => { delPath(p); touch(); renderTree(); }
+      );
+    };
+    row.append(del);
+    const jb = h("button", "mini", "JSON");
+    jb.title = "编辑本项的原始 JSON（保存后写回原位置）";
+    jb.onclick = () => openJsonEditor(p);
+    row.append(jb);
+    wrap.append(row);
+
+    if (!collapsed) {
+      const kids = h("div", "children");
+      const entries = isArr ? val.map((v, i) => [i, v]) : Object.entries(val);
+      for (const [k, v] of entries) kids.append(renderNode(k, v, p.concat([k]), depth + 1));
+      wrap.append(kids);
+    }
+    return wrap;
+  }
+
+  const keySpan = h("span", "idx", String(key));
+  makeRenameable(keySpan, key, p);
+  row.append(keySpan);
+  const scKind = translationKindOf(key);
+  if (scKind) { const nt = keyNameTag(scKind); if (nt) row.append(nt); }
+  /* 翻译文字 + 「选」按钮放在 input 前面。
+     isKey 模式（# isKey: true）：纯 Key 翻译——只显示翻译文字，不显示「选」，
+     未收录时也不显示「未翻译」占位 */
+  if (scKind) {
+    const tr = translateValue(scKind, val);
+    const keyOnly = isKeyKind(scKind);
+    if (!(keyOnly && !tr.known)) {
+      const span = h("span", "tr" + (tr.known ? "" : " unknown"));
+      /* 翻译文字色：行级第三列（显式）优先，未设置时按 autoColor 正则自动匹配；
+         文本里的 <font color> / <span style="color:"> 可局部覆盖 */
+      if (tr.known && tr.color) span.style.color = tr.color;
+      span.innerHTML = inlineColorHtml(tr.text);
+      span.title = stripInlineTags(tr.full || tr.text);
+      row.append(span);
+    }
+    if (!keyOnly) {
+      const pick = h("button", "mini", "选");
+      pick.title = "打开翻译列表，选择后回写本项的值";
+      pick.onclick = () => openPicker(scKind, p, val);
+      row.append(pick);
+    }
+  }
+  if (typeof val === "boolean") {
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = val;
+    cb.style.flex = "none";
+    cb.onfocus = () => showPathBar(p);
+    cb.onchange = () => { setPath(p, cb.checked); touch(); };
+    row.append(cb);
+  } else {
+    const inp = h("input", "val");
+    inp.type = "text";
+    inp.value = val === null ? "" : String(val);
+    inp.onfocus = () => showPathBar(p);
+    inp.onchange = () => {
+      const raw = inp.value;
+      if (typeof val === "number") {
+        const n = Number(raw);
+        if (raw.trim() === "" || Number.isNaN(n)) { inp.value = String(val); return; }
+        setPath(p, n);
+      } else {
+        setPath(p, raw);
+      }
+      touch();
+      if (translationKindOf(key)) renderTree();
+    };
+    row.append(inp);
+    if (val === null) {
+      const tag = h("span", "null-val", "null");
+      row.append(tag);
+    }
+  }
+  const clone = h("button", "mini", "⧉");
+  clone.title = "克隆此项（深拷贝一份，插到本项后面）";
+  clone.onclick = () => cloneNode(p);
+  row.append(clone);
+  appendMoveButtons(row, p);
+  const del = h("button", "mini", "×");
+  del.title = "删除";
+  del.onclick = () => { delPath(p); renderTree(); touch(); };
+  row.append(del);
+  wrap.append(row);
+  return wrap;
+}
+
+/* ---------- JSON 路径面包屑 ----------
+ * 聚焦/点击树中输入框时，在导入栏上方显示该项的完整 JSON 路径：
+ *   对象键 > [数组索引] > …（对象键段附带翻译文字，颜色与树中一致）
+ * 点击路径段跳转对应行（滑动滚动 + 高亮）；悬停路径段弹出同级兄弟
+ * 节点菜单，可点击跳转。 */
+const pathbar = { path: null };
+/* JSON 路径串 -> .node 元素；renderTree 重建，供路径段跳转查找 */
+const nodeIndex = new Map();
+
+function pathKeyOf(p) { return JSON.stringify(p); }
+
+function clearPathBar() {
+  pathbar.path = null;
+  closePathMenu();
+  renderPathBar();
+}
+
+function showPathBar(p) {
+  if (!p || !p.length) return;
+  pathbar.path = p.slice();
+  renderPathBar();
+}
+
+function renderPathBar() {
+  const host = $("#pathbar-crumbs");
+  const empty = $("#pathbar-empty");
+  host.textContent = "";
+  const p = pathbar.path;
+  if (!p || !p.length || state.data === null || typeof state.data !== "object") {
+    empty.style.display = "";
+    return;
+  }
+  empty.style.display = "none";
+  for (let i = 0; i < p.length; i++) {
+    if (i > 0) host.append(h("span", "pb-sep", ">"));
+    const q = p.slice(0, i + 1);
+    const seg = h("span", "pb-crumb" + (i === p.length - 1 ? " cur" : ""));
+    const parent = i === 0 ? state.data : getPath(p.slice(0, i));
+    if (Array.isArray(parent)) {
+      seg.append(h("span", "pb-idx", "[" + String(p[i]) + "]"));
+      seg.title = "数组第 " + (Number(p[i]) + 1) + " 个元素（索引 " + p[i] + "，共 " + parent.length + " 个）\n点击跳转到此元素，悬停查看同级元素";
+    } else {
+      const k = String(p[i]);
+      seg.append(h("span", "pb-key", k));
+      const kind = translationKindOf(k);
+      /* 键名翻译：<键名>.csv 头部 # name: 参数（含 # isKey: true 的纯 Key
+         翻译表），主题色取头部 # color:——每个键段都查，不止末段 */
+      const kn = keyNameTag(kind);
+      if (kn) {
+        kn.className = "pb-kn";
+        seg.append(kn);
+      }
+      /* 值翻译：该位置是字符串且有对应 kind 的翻译（末段标量常见） */
+      const v = getPath(q);
+      const tr = kind && typeof v === "string" ? translateValue(kind, v) : null;
+      if (tr && tr.known) {
+        const ts = h("span", "pb-tr");
+        if (tr.color) ts.style.color = tr.color;
+        ts.innerHTML = inlineColorHtml(tr.text);
+        ts.title = stripInlineTags(tr.full || tr.text);
+        seg.append(ts);
+      }
+      let tip = k;
+      if (kn) tip += " → " + kn.textContent;
+      if (tr && tr.known) tip += " → " + stripInlineTags(tr.text);
+      seg.title = tip + "\n点击跳转到此字段，悬停查看同级字段";
+    }
+    seg.onclick = () => jumpToPath(q);
+    seg.onmouseenter = () => openPathMenu(seg, q);
+    seg.onmouseleave = scheduleClosePathMenu;
+    host.append(seg);
+  }
+}
+
+/* 点击路径段：目标可能被折叠/过滤时先展开祖先、清过滤，再滑动滚动并高亮 */
+function jumpToPath(p) {
+  closePathMenu();
+  if (!p || !p.length) return;
+  let el = nodeIndex.get(pathKeyOf(p));
+  if (!el) {
+    let changed = false;
+    for (let i = 1; i < p.length; i++) {
+      const k = pathKeyOf(p.slice(0, i));
+      if (state.collapsed.has(k)) { state.collapsed.delete(k); changed = true; }
+    }
+    if (state.filter) {
+      state.filter = "";
+      const f = $("#filter");
+      if (f) f.value = "";
+      changed = true;
+    }
+    if (changed) { renderTree(); el = nodeIndex.get(pathKeyOf(p)); }
+  }
+  if (!el) { toast("目标当前不可见", true); return; }
+  if (typeof el.scrollIntoView === "function") el.scrollIntoView({ block: "center", behavior: "smooth" });
+  el.classList.add("flash");
+  setTimeout(() => el.classList.remove("flash"), 1500);
+}
+
+/* 同级兄弟节点菜单（悬停路径段弹出） */
+let pathMenuTimer = null;
+function scheduleClosePathMenu() {
+  clearTimeout(pathMenuTimer);
+  pathMenuTimer = setTimeout(closePathMenu, 240);
+}
+function closePathMenu() {
+  clearTimeout(pathMenuTimer);
+  const m = $("#pathmenu");
+  if (m) m.classList.remove("show");
+}
+function cancelClosePathMenu() { clearTimeout(pathMenuTimer); }
+
+function openPathMenu(anchor, q) {
+  cancelClosePathMenu();
+  const menu = $("#pathmenu");
+  const list = $("#pathmenu-list");
+  const head = $("#pathmenu-head");
+  const parentPath = q.slice(0, -1);
+  const container = getPath(parentPath);
+  if (!container || typeof container !== "object") { closePathMenu(); return; }
+  const entries = Array.isArray(container)
+    ? container.map((v, i) => [i, v])
+    : Object.entries(container);
+  head.textContent = "同级节点（" + entries.length + "）· 点击跳转";
+  list.textContent = "";
+  const curKey = pathKeyOf(q);
+  for (const [k, v] of entries) {
+    const sp = parentPath.concat([k]);
+    const item = h("div", "pm-item" + (pathKeyOf(sp) === curKey ? " cur" : ""));
+    if (Array.isArray(container)) {
+      item.append(h("span", "i", "[" + String(k) + "]"));
+      item.title = "数组第 " + (Number(k) + 1) + " 个元素";
+    } else {
+      item.append(h("span", "k", String(k)));
+      const kind = translationKindOf(k);
+      /* 键名翻译（与路径栏一致：<键名>.csv 头部 # name:，主题色 # color:） */
+      const kn = keyNameTag(kind);
+      if (kn) {
+        kn.className = "kn";
+        item.append(kn);
+      }
+      const tr = kind && typeof v === "string" ? translateValue(kind, v) : null;
+      if (tr && tr.known) {
+        const ts = h("span", "t");
+        if (tr.color) ts.style.color = tr.color;
+        ts.innerHTML = inlineColorHtml(tr.text);
+        item.append(ts);
+      }
+      let tip = String(k);
+      if (kn) tip += " → " + kn.textContent;
+      if (tr && tr.known) tip += " → " + stripInlineTags(tr.text);
+      item.title = tip;
+    }
+    item.onclick = () => { closePathMenu(); jumpToPath(sp); };
+    list.append(item);
+  }
+  /* 定位：锚点下方优先，空间不足则上移；左右夹紧在视口内 */
+  const vh = typeof innerHeight === "number" ? innerHeight : 800;
+  const vw = typeof innerWidth === "number" ? innerWidth : 1280;
+  const rect = anchor.getBoundingClientRect();
+  const bottom = rect.bottom === undefined ? rect.top + (rect.height || 20) : rect.bottom;
+  const mw = menu.offsetWidth || 260;
+  const mh = menu.offsetHeight || 260;
+  let left = rect.left;
+  let top = bottom + 4;
+  if (top + mh > vh - 8) top = Math.max(8, rect.top - mh - 4);
+  if (left + mw > vw - 8) left = vw - mw - 8;
+  if (left < 8) left = 8;
+  menu.style.left = Math.round(left) + "px";
+  menu.style.top = Math.round(top) + "px";
+  menu.classList.add("show");
+}
+$("#pathmenu").onmouseenter = cancelClosePathMenu;
+$("#pathmenu").onmouseleave = scheduleClosePathMenu;
+
+function allContainerPaths() {
+  const out = [];
+  (function walk(v, p) {
+    if (v === null || typeof v !== "object") return;
+    out.push(JSON.stringify(p));
+    const entries = Array.isArray(v) ? v.map((x, i) => [i, x]) : Object.entries(v);
+    for (const [k, x] of entries) walk(x, p.concat([k]));
+  })(state.data, []);
+  return out;
+}
+
+/* ---------- raw mode ---------- */
+function setRawMode(on) {
+  state.rawMode = on;
+  $("#raw").classList.toggle("show", on);
+  $("#tree").style.display = on ? "none" : "";
+  $("#btn-raw").textContent = on ? "树形视图" : "原始 JSON";
+  $("#btn-apply").style.display = on ? "" : "none";
+  $("#filter").style.display = on ? "none" : "";
+  $("#btn-expand").style.display = on ? "none" : "";
+  $("#btn-collapse").style.display = on ? "none" : "";
+}
+
+/* ---------- export (.sav -> JSON) ---------- */
+let exportArmed = false;
+async function doExport() {
+  const btn = $("#btn-export");
+  if (!exportArmed) {
+    exportArmed = true;
+    btn.textContent = "确认解析？再点一次";
+    setTimeout(() => {
+      exportArmed = false;
+      btn.textContent = "解析存档";
+    }, 4000);
+    return;
+  }
+  exportArmed = false;
+  btn.textContent = "解析存档";
+  const frontiers = $("#frontiers").value.trim();
+  try {
+    const r = await api("/api/export", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ frontiers }),
+    });
+    await loadFiles();
+    if (r.message) { toast(r.message); return; }
+    if (state.current && !state.dirty && r.exported.indexOf(state.current) !== -1) {
+      openFile(state.current);
+    }
+    let msg = "已解析 " + r.exported.length + " 个存档 → " + r.outputFolder;
+    if (r.errors && r.errors.length) msg += "（" + r.errors.length + " 个失败）";
+    toast(msg, !!(r.errors && r.errors.length));
+  } catch (e) {
+    toast("解析失败: " + (e.message || e), true);
+  }
+}
+
+/* ---------- import (.sav write-back) ---------- */
+async function doImport() {
+  const btn = $("#btn-import");
+  if (!state.importArmed) {
+    state.importArmed = true;
+    btn.textContent = "确认覆盖存档？再点一次";
+    btn.className = "danger";
+    setTimeout(() => {
+      state.importArmed = false;
+      btn.textContent = "写回游戏存档 (.sav)";
+      btn.className = "danger";
+    }, 4000);
+    return;
+  }
+  state.importArmed = false;
+  btn.textContent = "写回游戏存档 (.sav)";
+  btn.className = "danger";
+  const frontiers = $("#frontiers").value.trim();
+  if (!frontiers) { toast("请先填写 Frontiers 目录", true); return; }
+  try {
+    const r = await api("/api/import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ frontiers }),
+    });
+    const log = $("#importlog");
+    log.textContent = "";
+    log.className = "show";
+    log.append(h("div", null, "目标目录: " + r.saveGames));
+    for (const item of r.results) {
+      const line = h("div", item.ok ? "r-ok" : "r-err",
+        (item.ok ? "OK   " : "FAIL ") + item.name + (item.ok ? "  (" + fmtSize(item.bytes) + ", 备份 " + item.backup + ")" : "  - " + item.reason));
+      log.append(line);
+    }
+    const okCount = r.results.filter((x) => x.ok).length;
+    toast("写回完成：" + okCount + " 成功 / " + (r.results.length - okCount) + " 失败");
+  } catch (e) {
+    toast("写回失败: " + (e.message || e), true);
+  }
+}
+
+/* ---------- wiring ---------- */
+$("#btn-refresh").onclick = loadFiles;
+$("#btn-save").onclick = saveFile;
+$("#btn-raw").onclick = () => {
+  if (state.rawMode) {
+    try {
+      state.data = JSON.parse($("#raw").value);
+      state.dirty = true;
+      setRawMode(false);
+      renderTree();
+      updateLen();
+      toast("已应用文本修改（记得保存）");
+    } catch (e) {
+      toast("JSON 解析失败: " + e.message, true);
+    }
+  } else {
+    $("#raw").value = JSON.stringify(state.data, null, 2);
+    setRawMode(true);
+  }
+};
+$("#btn-apply").onclick = () => $("#btn-raw").click();
+$("#btn-expand").onclick = () => { state.collapsed = new Set(); renderTree(); };
+$("#btn-collapse").onclick = () => {
+  state.collapsed = new Set(allContainerPaths());
+  renderTree();
+};
+$("#filter").oninput = (e) => { state.filter = e.target.value.trim().toLowerCase(); renderTree(); };
+$("#btn-export").onclick = doExport;
+$("#btn-import").onclick = doImport;
+
+/* ---------- picker dialog wiring ---------- */
+$("#dlg-close").onclick = closePicker;
+$("#dlg-mask").onclick = () => { if (hasTextSelection()) return; closePicker(); };
+
+/* 添加对话框事件 */
+$("#add-close").onclick = closeAddDialog;
+$("#add-cancel").onclick = closeAddDialog;
+$("#add-mask").onclick = closeAddDialog;
+$("#add-field").onclick = () => confirmAdd("field");
+$("#add-object").onclick = () => confirmAdd("object");
+$("#add-array").onclick = () => confirmAdd("array");
+$("#add-key").onkeydown = (e) => {
+  if (e.key === "Enter") { e.preventDefault(); confirmAdd("field"); }
+  if (e.key === "Escape") { e.preventDefault(); closeAddDialog(); }
+};
+
+/* 通用确认对话框事件 */
+$("#confirm-close").onclick = closeConfirm;
+$("#confirm-cancel").onclick = closeConfirm;
+$("#confirm-mask").onclick = closeConfirm;
+$("#confirm-ok").onclick = () => {
+  const cb = confirmOk;
+  closeConfirm();
+  if (cb) cb();
+};
+$("#confirm-ok").onkeydown = (e) => {
+  if (e.key === "Escape") { e.preventDefault(); closeConfirm(); }
+};
+
+/* 局部 JSON 编辑事件 */
+$("#json-close").onclick = closeJsonEditor;
+$("#json-cancel").onclick = closeJsonEditor;
+$("#json-mask").onclick = closeJsonEditor;
+$("#json-fmt").onclick = fmtJsonEditor;
+$("#json-save").onclick = saveJsonEditor;
+$("#dlg-save").onclick = savePicker;
+$("#dlg-refresh").onclick = dlgRefresh;
+$("#dlg-sort-value").onclick = () => setPickerSort("value");
+$("#dlg-sort-text").onclick = () => setPickerSort("text");
+$("#dlg-add").onclick = dlgAdd;
+$("#dlg-edit").onclick = dlgEdit;
+$("#dlg-del").onclick = dlgDelete;
+$("#dlg-f-ok").onclick = dlgFormOk;
+$("#dlg-f-cancel").onclick = hideDlgForm;
+/* 颜色控件联动：色盘 → hex 文本框；hex 文本框（含命名色）→ 色盘 */
+$("#dlg-f-color").oninput = () => { $("#dlg-f-color-hex").value = $("#dlg-f-color").value; };
+$("#dlg-f-color-hex").oninput = () => {
+  const c = normColor($("#dlg-f-color-hex").value.trim());
+  if (c) $("#dlg-f-color").value = expandHex6(c);
+};
+$("#dlg-f-color-clear").onclick = () => {
+  $("#dlg-f-color-hex").value = "";
+  $("#dlg-f-color").value = "#000000";
+  $("#dlg-f-color-hex").focus();
+};
+function dlgFormKey(e) {
+  e.stopPropagation();
+  if (e.key === "Enter") dlgFormOk();
+  else if (e.key === "Escape") hideDlgForm();
+}
+$("#dlg-f-val").onkeydown = dlgFormKey;
+$("#dlg-f-text").onkeydown = dlgFormKey;
+$("#dlg-f-color-hex").onkeydown = dlgFormKey;
+$("#dlg-filter").oninput = renderPickerList;
+$("#dlg-filter").onkeydown = (e) => {
+  e.stopPropagation();
+  if (e.key === "Escape") { if (picker.formMode) hideDlgForm(); else closePicker(); }
+  else if (e.key === "Enter" && picker.sel) savePicker();
+};
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  if ($("#json").classList.contains("show")) { closeJsonEditor(); return; }
+  if ($("#confirm").classList.contains("show")) { closeConfirm(); return; }
+  if ($("#add").classList.contains("show")) { closeAddDialog(); return; }
+  if (!$("#dlg").classList.contains("show")) return;
+  if (picker.formMode) hideDlgForm();
+  else closePicker();
+});
+/* 点击路径栏/菜单之外时收起兄弟节点菜单 */
+document.addEventListener("pointerdown", (e) => {
+  const menu = $("#pathmenu");
+  if (!menu.classList.contains("show")) return;
+  const t = e && e.target;
+  if (t && t.closest && (t.closest("#pathbar") || t.closest("#pathmenu"))) return;
+  closePathMenu();
+});
+
+(async function init() {
+  try {
+    const cfg = await api("/api/config");
+    $("#datadir").textContent = cfg.dataDir;
+    $("#frontiers").value = cfg.frontiers;
+    $("#banner").className = "";
+    await loadTranslationKinds();
+    await loadFiles();
+  } catch (e) {
+    showBanner("无法连接本地服务：" + (e.message || e));
+  }
+})();
+</script>
+</body>
+</html>

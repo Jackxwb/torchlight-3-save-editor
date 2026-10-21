@@ -1,0 +1,35 @@
+# Torchlight 3 存档编辑器 - 据点装饰行名 rowName 翻译表（树中 rowName 键按此表匹配）
+# 格式：每行 「数值,翻译」，井号开头为注释；翻译中可以包含逗号
+# name: 据点装饰
+Banner_Battlefield_01,战地旗帜 #01
+Banner_Imperial_01,帝国旗帜 #01
+BarrelGroup,木桶组
+Bench_Wooden,木长椅
+Campfire_Stone,石制篝火
+Chair_Stool_Gobcave_01,哥布林洞穴凳 #01
+crate,板条箱
+CrateGroup,板条箱组
+Flooring_Planks_gobrr_01,哥布林木板地板 #01
+Flooring_Stones_Cemetery_01,墓园石地板 #01
+Flooring_Stones_Gobcave_Smallrocks_04,哥布林洞穴碎石地板 #04
+Flooring_Tile_Wood_Lattice,木格纹瓷砖地板
+Foliage_Goblin_01,哥布林植被 #01
+Foliage_Goblin_03,哥布林植被 #03
+Junk_Gobbf_c_05,哥布林垃圾堆 #05
+lamppost,路灯柱
+Mushrooms_Goblin_02,哥布林蘑菇 #02
+Mushrooms_Goblin_Ground_02,哥布林地蘑菇 #02
+Pet_PasstheGas,[宠物技能]排矢气，你的宠物每30秒掉落一个小气团，造成125%持续武器伤害，并有10%几率对接触到的敌人造成2秒的恐惧效果。每个气团持续6秒。冷却30秒
+PetBuff_BattleCry,[宠物技能]战吼，所有友军防御提高+25%，持续10秒。冷却30秒
+PetDebuff_ScreechingStun,[宠物技能]吼晕，你的宠物大声吼叫，造成200%武器伤害的同时眩晕敌人1秒。冷却30秒
+Rug_MainMenu_01,主菜单地毯 #01
+SackGroupLarge,大麻袋堆
+Stash_Account_Default,账号储藏箱（默认）
+StraightFence,直栅栏
+Tent_RedDamaged_01,破损红帐篷 #01
+Tent_RedDamaged_02,破损红帐篷 #02
+Tree_FallenLog_Gob_03,哥布林倒木 #03
+Tree_Goblin_01,哥布林树 #01
+Tree_Goblin_02,哥布林树 #02
+Tree_Stump_Goblin_01,哥布林树桩 #01
+Wagon_Broken_Gobbf_Fallen,破损翻倒的哥布林货车
