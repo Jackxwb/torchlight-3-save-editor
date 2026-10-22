@@ -17,6 +17,7 @@ CriticalHit_Chance_vsBurn,对燃烧目标的暴击率
 CriticalHit_Chance_vsChilled,对霜寒目标的暴击率
 CriticalHit_Chance_vsGoblins,对地精的暴击率
 CriticalHit_Chance_vsShock,对流血目标的暴击率
+CriticalHit_Chance_vsSlow,对减速目标的暴击率
 CriticalHit_Chance,暴击率
 CriticalHit_Damage_Armor,暴击伤害加成
 CriticalHit_Damage,暴击伤害加成
@@ -43,6 +44,7 @@ Damage_Poison_Secondary,毒素伤害（二级）
 Damage_vsGoblins_Secondary_2H,对地精的伤害
 Damage_vsGoblins_Secondary,对地精的伤害（二级2H）
 Damage_vsNetherim_Secondary_2H,对冥裔的伤害
+Damage_vsNetherim_Secondary,对冥裔的伤害
 Damage_vsUndead_Secondary_2H,对死灵的伤害
 Damage_vsUndead_Secondary,对死灵的伤害（二级）
 Damage_vsVespid_Secondary_2H,对骇危虫的伤害（二级2H）
@@ -55,6 +57,8 @@ Defense_Physical_Large_Primary,防御（大）
 Defense_Physical_Medium_Primary,防御（中）
 Defense_Physical_Medium_Secondary,防御（中，二级）
 Defense_Physical_Small_Primary,防御（小）
+Defense_Poison_Large_Secondary,毒素防御（大，二级）
+Defense_Poison_Small_Secondary,毒素防御（小，二级）
 EmberWeaponChargeRegen,圣物能量生成
 EnchantingEssence_Legendary_2_Tooltip,[消耗品词条]传奇精华
 EnchantingEssence_Magic_8_Tooltip,[消耗品词条]魔法精华
@@ -83,30 +87,45 @@ ItemType_Weapon_Mace_Tooltip,[附魔配方][类型]战锤
 ItemType_Weapon_Railhammer_Tooltip,[附魔配方][类型]轨道锤
 ItemType_Weapon_Staff_Tooltip,[附魔配方][类型]法杖
 ItemType_Weapon_Sword_Tooltip,[附魔配方][类型]剑
+Legendary_BasicAttackFireballs,[传奇][传奇默认词条]引火
 Legendary_Bow_StormDriver,[传奇][传奇默认词条]风暴驾驭者
+Legendary_Focus_Chronometer,[传奇][传奇默认词条]精密时计
+Legendary_PoisonBarrage,[传奇][传奇默认词条]三花蛇法杖
 Legendary_RandomRelicSkill,[传奇]施放寒霜冲击时：同时通过另一个随机圣物施放一个技能
+Legendary_Rifle_HeartShocker,[传奇][传奇默认词条]惊心
 Legendary_Shield_Shasta,[传奇][传奇默认词条]沙诗塔的承诺
+Legendary_Skittering_ShrineDuration,[传奇][传奇默认词条]飞掠头盔
 Legendary_SSSet1_BasicAmmoRestore,[传奇][传奇默认词条]火枪手长裤
 Legendary_SSSet1_PotionIntagible,[传奇][传奇默认词条]火枪手肩甲
+Legendary_SSSet1_PrecisionPoints,[传奇][传奇默认词条]火枪手骑士帽 Precision
+Legendary_SummonSkeletonKnightsOnRelic,[传奇][传奇默认词条]骸骨之盾
 Legendary_Woodsbeast_GoblinRage,[传奇][传奇默认词条]森林野兽靴子
 Legendary_Woodsbeast_LuckOnGoblinKill,[传奇][传奇默认词条]森林野兽胸甲
+LegendarySetBonus_Skittering_ShrineDuration,[传奇][传奇默认词条]飞掠头盔
 LegendarySetBonus_SSSet1_BasicAmmoRestore,[传奇][传奇默认词条]火枪手长裤
 LegendarySetBonus_SSSet1_PotionIntagible,[传奇][传奇默认词条]火枪手肩甲
+LegendarySetBonus_SSSet1_PrecisionPoints,[传奇][传奇默认词条]火枪手骑士帽 Precision Skills
 LegendarySetBonus_Woodsbeast_GoblinRage,[传奇][传奇默认词条]森林野兽靴子
 LegendarySetBonus_Woodsbeast_LuckOnGoblinKill,[传奇][传奇默认词条]森林野兽胸甲
 Luck_Gold,幸运 • 金币
 Luck_Item,幸运 • 装备
+Luck_Potion,幸运 • 药剂
 Lucky,幸运（隐藏属性）
 Pet_AttackCooldown,[宠物]宠物攻击速度
+Pet_Block,[宠物]宠物格挡几率
 Pet_CriticalHit_Bonus,[宠物]宠物暴击伤害加成
+Pet_CriticalHit_Chance,[宠物]宠物暴击率
 Pet_Damage_Electric_Primary,[宠物]宠物闪电伤害
+Pet_Damage_Fire_Primary,[宠物]宠物火焰伤害
 Pet_Damage_Ice_Primary,[宠物]A秒中毒持续时间
 Pet_Damage_Physical_Primary,[宠物]宠物物理伤害
 Pet_Damage_Poison_Primary,[宠物]宠物毒素伤害
 Pet_Defense_Fire_Primary,[宠物]宠物火焰防御
 Pet_Defense_Physical_Primary,[宠物]宠物防御
+Pet_Defense_Poison_Primary,[宠物]宠物的主动技能冷却速度加快
 Pet_HitPoints_Regen,[宠物]每秒恢复A的宠物生命值
 Pet_Legendary_FireImmunity,[宠物]宠物对火焰伤害免疫
+Pet_Legendary_GhostPets,[宠物][传奇][传奇默认词条]古老的令牌
 Pet_SkillCooldown,[宠物]宠物的主动技能冷却速度加快A%
 Pet_StatusEffect_Apply_Burn,[宠物]宠物攻击造成每秒A%武器伤害的燃烧，持续B秒
 Pet_StatusEffect_Apply_Chill,[宠物]宠物攻击造成霜寒状态，持续时间为A秒
@@ -118,14 +137,18 @@ Skill_Damage_GreatWeapon_BasicAttack,巨武普通攻击伤害加成
 Skill_Damage_Mace_BasicAttack,战锤普通攻击伤害加成
 Skill_Damage_Pistol_BasicAttack,手枪普通攻击伤害加成
 Skill_Damage_Rifle_BasicAttack,步枪普通攻击伤害加成
+Skill_Damage_Sharpshooter_CurseOfPipi,damage w/ Curse of Pipi|皮皮的诅咒 伤害增加
 Skill_Damage_Sharpshooter_Goblin,damage w/ Goblin Legion|妖精军团造成的伤害
 Skill_Damage_Sharpshooter_Goose,damage w/ Sacrifice to Goose| 祭祀大鹅 伤害增加
 Skill_Damage_Sharpshooter_Onslaught,damage w/ Onslaught
 Skill_Damage_Sharpshooter_Scout,damage w/ Scout's Bones|侦察兵之骨 伤害增加
 Skill_Damage_Sharpshooter_TargetedStrikes,damage w/ Targeted Strikes|[神射手]精准打击，伤害增加
+Skill_Damage_Sharpshooter_TriShot,damage w/ Tight Grouping|[神射手]紧凑射击，伤害增加
 Skill_Damage_Staff_BasicAttack,法杖普通攻击伤害加成
 Skill_Damage_Sword_BasicAttack,剑击普通攻击伤害加成
 Skill_Duration_Sharpshooter_Rizzi,duration for Rizzi's Fate|里兹的命运 持续时间增加
+Skill_Duration_Sharpshooter_Scout,duration for Scout's Bones' Poison|侦察兵之骨 持续时间增加
+Skill_Level_RelicPower,Skill Level to 冷锋
 Skill_Level_Sharpshooter_GhostVisage,Skill Level to Ghost Visage|[神射手]鬼面，位移神技，自带 6 秒无敌
 Skill_Level_Sharpshooter_GoblinLegion,Skill Level to Goblin Legion|妖精军团
 Skill_Level_Sharpshooter_Onslaught,Skill Level to Onslaught|[神射手]箭雨
@@ -148,6 +171,7 @@ StatusEffect_Apply_Shock,A%的几率造成电击，持续B秒，击中敌人并�
 StatusEffect_Apply_Stun,A%几率造成眩晕，持续B秒。
 StatusEffect_ApplyImmobilize,A几率定身，持续B秒
 StatusEffect_ApplySlow,A几率减缓目标基础速度的B%，持续C秒
+StatusEffect_Duration_Chill,A秒霜寒持续时间
 StatusEffect_Duration_Poison,[宠物]宠物寒冰伤害
 StatusEffect_Duration_Shock,A秒电击持续时间
 StatusEffect_Shock_Bolts,电击时额外发射1支箭
