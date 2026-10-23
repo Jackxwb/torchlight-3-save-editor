@@ -564,12 +564,21 @@ function showBanner(html) {
   b.className = "show";
 }
 
+/* 清除顶部 banner：目录就绪（如解析存档成功）后必须调用，
+   否则首次运行的 "data dir not found" 会一直挂着 */
+function hideBanner() {
+  const b = $("#banner");
+  b.innerHTML = "";
+  b.className = "";
+}
+
 /* ---------- file list ---------- */
 async function loadFiles() {
   try {
     const r = await api("/api/files");
     state.files = r.files;
     $("#datadir").textContent = r.dataDir;
+    hideBanner(); // 能读到文件列表 ⇒ 之前的目录错误已过时，先清再渲染
     renderFiles();
   } catch (e) {
     state.files = [];
@@ -619,14 +628,16 @@ function renderFiles() {
 }
 
 /* ---------- open / save ---------- */
-async function openFile(name) {
+/* opts.keepCollapsed：同一文档重载（如解析存档后重新打开当前文件）时
+   保留已折叠的节点；切换文档时不传该参数，折叠状态照旧清空 */
+async function openFile(name, opts) {
   try {
     const r = await api("/api/file?name=" + encodeURIComponent(name));
     state.current = r.name;
     state.data = r.json;
     state.cap = r.compactLength;
     state.dirty = false;
-    state.collapsed = new Set();
+    if (!(opts && opts.keepCollapsed)) state.collapsed = new Set();
     clearPathBar(); // 切换文件后旧路径失效
     collectTranslations(state.data);
     $("#curfile").textContent = r.name;
@@ -2375,7 +2386,7 @@ async function doExport() {
     await loadFiles();
     if (r.message) { toast(r.message); return; }
     if (state.current && !state.dirty && r.exported.indexOf(state.current) !== -1) {
-      openFile(state.current);
+      openFile(state.current, { keepCollapsed: true }); // 同文档重载：保留折叠状态
     }
     let msg = "已解析 " + r.exported.length + " 个存档 → " + r.outputFolder;
     if (r.errors && r.errors.length) msg += "（" + r.errors.length + " 个失败）";
