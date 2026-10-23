@@ -165,16 +165,55 @@ function saveFile(path: string, content: any) {
   safeWriteFile(path, fileAsBuffer);
 }
 
+/* 提取 .sav 中的 JSON 载荷文本。
+   锚点：JsonString 标记之后是载荷区，最后一个 dataVersion 之后的 '}' 是结尾。
+   坑：存档二进制头部里也可能出现 '{'——游戏写入的 AccountWide.sav 头部形如
+   "…StrProperty\0J{\0\0\0\0\0\0\0F{\0\0{\r\n\t\"crafting\"…"，
+   前两个 '{' 是二进制字段，第三个才是 JSON 根。只取「第一个 '{'」会切到二进制
+   垃圾上，JSON.parse 报 "Expected property name or '}' at position 1"。
+   因此从锚点后逐个尝试 '{' 候选，以「整段可被 JSON.parse 解析」判定真正起点；
+   候选数设上限防止损坏文件把每个 '{' 都试一遍（正常存档根都在前几个内）。 */
+const MAX_PAYLOAD_CANDIDATES = 256;
+
 function getContent(filePath) {
   const fileAsBuffer = fs.readFileSync(filePath);
 
-  const indexOfFirstBracket = getStartindex(fileAsBuffer);
+  const jsonType = fileAsBuffer.indexOf("JsonString", 0, "utf-8");
   const indexOfLastBracket = getEndIndex(fileAsBuffer);
+  if (indexOfLastBracket <= 0) {
+    throw new Error(
+      "无法定位 JSON 载荷结尾（未找到 dataVersion 之后的 '}'）：" + filePath
+    );
+  }
 
-  const content = fileAsBuffer
-    .slice(indexOfFirstBracket, indexOfLastBracket)
-    .toString("utf-8");
-  return content;
+  let start = fileAsBuffer.indexOf(
+    "{",
+    jsonType < 0 ? 0 : jsonType,
+    "utf-8"
+  );
+  let tried = 0;
+  let firstErr = null;
+  while (start !== -1 && start < indexOfLastBracket && tried < MAX_PAYLOAD_CANDIDATES) {
+    const content = fileAsBuffer
+      .slice(start, indexOfLastBracket)
+      .toString("utf-8");
+    try {
+      JSON.parse(content); // 完整解析成功 = 真正的载荷（含结尾校验）
+      return content;
+    } catch (e) {
+      if (!firstErr) firstErr = e;
+    }
+    start = fileAsBuffer.indexOf("{", start + 1, "utf-8");
+    tried++;
+  }
+  throw new Error(
+    "无法解析存档 JSON 载荷（已尝试 " +
+      tried +
+      " 个 '{' 候选" +
+      (firstErr ? "，首个解析错误：" + firstErr.message : "") +
+      "）：" +
+      filePath
+  );
 }
 
 function listAllValidFiles(dirPath) {
