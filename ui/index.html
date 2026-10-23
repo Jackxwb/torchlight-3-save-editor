@@ -146,7 +146,7 @@
   #dlg-close { padding: 1px 9px; }
   #dlg-body { display: flex; flex-direction: column; min-height: 0; padding: 10px 12px; gap: 8px; }
   #dlg-filter { width: 100%; }
-  #dlg-sortbar { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+  #dlg-sortbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px; }
   #dlg-sortbar .lbl { color: var(--muted); font-size: 12px; flex: none; }
   .sortbtn { font-size: 12px; padding: 2px 10px; border: 1px solid var(--border); background: transparent; color: var(--muted); border-radius: 3px; cursor: pointer; }
   .sortbtn:hover { color: var(--fg); }
@@ -177,13 +177,23 @@
   #dlg-resize:hover::after { border-color: var(--accent); }
   .dlg-item { display: flex; gap: 10px; padding: 6px 10px; cursor: pointer; border-bottom: 1px solid #2c2e36; align-items: baseline; }
   .dlg-item:hover { background: var(--panel2); }
+  /* 同级属性高亮：与本数组同 key 值的行（暖色底 + 左侧竖线；与 sel 蓝底叠加时蓝底优先） */
+  .dlg-item.sib { background: rgba(240, 180, 90, 0.09); box-shadow: inset 3px 0 0 rgba(240, 180, 90, 0.55); }
   .dlg-item.sel { background: #23304a; }
+  .dlg-item.flash { background: rgba(91, 156, 248, 0.22); box-shadow: inset 0 0 0 1px var(--accent); }
+  /* 弹窗内小按钮（如未翻译项的「转到结构」、同级高亮行的「定位数组项」） */
+  .dlg-item .mini { flex: none; padding: 0 8px; font-size: 12px; line-height: 1.5; color: var(--muted); background: #262a33; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; }
+  .dlg-item .mini:hover { color: var(--text); border-color: var(--accent); }
+  .dlg-item .mini + .mini { margin-left: 6px; }
   .dlg-item .v { font-family: var(--mono); font-size: 12px; color: #b9c7e8; flex: none; max-width: 48%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .dlg-item .t { font-size: 12px; }
   .dlg-item .t.unknown { color: var(--muted); }
   .dlg-empty { padding: 16px; color: var(--muted); text-align: center; }
   #dlg-foot { display: flex; align-items: center; gap: 8px; padding: 9px 26px 9px 12px; border-top: 1px solid var(--border); }
   #dlg-count { color: var(--muted); font-size: 12px; }
+  #dlg-count .dc-main { color: var(--text); }
+  #dlg-count .dc-un { color: #7d8090; margin-left: 8px; }
+  #dlg-count .dc-un::before { content: "· "; }
 
   /* 添加元素/字段对话框（字段/对象/数组 三选） */
   #add-mask { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: none; z-index: 60; }
@@ -404,6 +414,9 @@
       <span class="lbl">排序：</span>
       <button id="dlg-sort-value" class="sortbtn" title="按数值/Key 原文排序（CSV 数据始终排在未翻译项前面）">原文</button>
       <button id="dlg-sort-text" class="sortbtn" title="按中文翻译文本排序（CSV 数据始终排在未翻译项前面）">翻译</button>
+      <span class="lbl">未翻译项目：</span>
+      <button id="dlg-unsort-struct" class="sortbtn" title="未翻译项按其在 JSON 结构中从上到下的出现顺序排序（最先出现的排上面；已翻译项不受影响）">结构</button>
+      <button id="dlg-unsort-default" class="sortbtn" title="未翻译项跟随上方排序方式（默认行为）">默认</button>
     </div>
     <div id="dlg-form-hint" style="display:none;color:var(--muted);font-size:12px"></div>
     <div id="dlg-form">
@@ -420,6 +433,7 @@
   <div id="dlg-foot">
     <span id="dlg-count"></span>
     <span style="flex:1"></span>
+    <button id="dlg-locate" title="在翻译列表中定位打开此窗口的项目（滚动可见并高亮；不改变当前选中，不写入翻译）">跳转到当前项目</button>
     <button id="dlg-add" title="新增一条翻译（选中行会预填数值）">新增</button>
     <button id="dlg-edit" title="修改选中项的翻译">修改</button>
     <button id="dlg-del" title="删除列表中选中行的翻译（再点一次确认）">删除</button>
@@ -1034,7 +1048,7 @@ function translateValue(kind, val) {
 }
 
 /* ---------- picker dialog（通用：kind 即 CSV 文件名去扩展名） ---------- */
-const picker = { kind: null, path: null, items: [], sel: null, formMode: null, formOrig: "", sortBy: "value" };
+const picker = { kind: null, path: null, items: [], sel: null, formMode: null, formOrig: "", sortBy: "value", originValue: null, unknownSort: "struct", siblings: null };
 
 /* 常见 kind 的友好标题，其余走通用文案 */
 const KIND_TITLES = {
@@ -1052,8 +1066,45 @@ function pickerSortCmp(mode) {
   return (a, b) => a.value.localeCompare(b.value);
 }
 
+/* 结构中值出现顺序表：DFS 遍历 state.data（与 renderTree 的页面顺序一致），
+   返回 Map<值, 首次出现序号>。仅收录字符串标量 */
+function structValueOrder() {
+  const order = new Map();
+  let n = 0;
+  (function walk(node) {
+    if (node === null || typeof node !== "object") {
+      if (typeof node === "string" && !order.has(node)) order.set(node, n++);
+      return;
+    }
+    for (const k of Object.keys(node)) walk(node[k]);
+  })(state.data);
+  return order;
+}
+
+/* 未翻译项的结构序比较器：按 structValueOrder 的序号升序；
+   结构中未出现的值排最后（Infinity），彼此保持稳定次序 */
+function unknownStructCmp() {
+  const order = structValueOrder();
+  return (a, b) => {
+    const oa = order.has(a.value) ? order.get(a.value) : Infinity;
+    const ob = order.has(b.value) ? order.get(b.value) : Infinity;
+    return oa - ob;
+  };
+}
+
+/* 段内重排未翻译行：known 行位置不动，unknown 行按给定比较器重新填到
+   原 unknown 位置的序列里（保持段整体结构，只改未翻译项彼此的次序） */
+function sortUnknownInPlace(items, cmpUnknown) {
+  const pos = [], unk = [];
+  items.forEach((it, i) => { if (it.unknown) { pos.push(i); unk.push(it); } });
+  if (unk.length < 2) return;
+  unk.sort(cmpUnknown);
+  pos.forEach((p, j) => { items[p] = unk[j]; });
+}
+
 /* picker 列表 = 第一段全部 CSV 缓存条目 + 第二段当前 kind 的未翻译值。
-   两段内部各自按 picker.sortBy 排序，但 CSV 段恒在未翻译段前面 */
+   两段内部各自按 picker.sortBy 排序，但 CSV 段恒在未翻译段前面；
+   picker.unknownSort = "struct" 时，两段内的未翻译行改按结构出现顺序排列 */
 function pickerItems(kind) {
   const csvItems = [];
   for (const [v, t] of translations[kind] || []) {
@@ -1076,6 +1127,11 @@ function pickerItems(kind) {
   const cmp = pickerSortCmp(picker.sortBy);
   csvItems.sort(cmp);
   unItems.sort(cmp);
+  if (picker.unknownSort === "struct") {
+    const ucmp = unknownStructCmp();
+    sortUnknownInPlace(csvItems, ucmp); // CSV 段内的空翻译行也按结构序（known 行不动）
+    unItems.sort(ucmp); // 未收录段全是未翻译行，整体重排
+  }
   return csvItems.concat(unItems);
 }
 
@@ -1107,6 +1163,37 @@ function savePickerSize(w, h) {
     localStorage.setItem(PICKER_SIZE_KEY, JSON.stringify({ w: Math.round(w), h: Math.round(h) }));
   } catch (_) { /* 不记大小也能正常用 */ }
 }
+
+/* ---------- 选择窗排序偏好：原文/翻译 + 未翻译项（结构/默认），存 localStorage ---------- */
+const PICKER_SORT_KEY = "tl3-picker-sort";
+/* 默认偏好：原文排序 + 未翻译项结构排序 */
+function defaultPickerSort() {
+  return { sortBy: "value", unknownSort: "struct" };
+}
+/* 读取排序偏好；无记录 / JSON 损坏 / 字段非法 → 默认值。
+   字段名与 picker 一致（sortBy / unknownSort），Object.assign 直接生效 */
+function loadPickerSort() {
+  const d = defaultPickerSort();
+  try {
+    const raw = localStorage.getItem(PICKER_SORT_KEY);
+    if (!raw) return d;
+    const o = JSON.parse(raw);
+    return {
+      sortBy: o && o.sortBy === "text" ? "text" : "value",
+      unknownSort: o && o.unknownSort === "default" ? "default" : "struct",
+    };
+  } catch (_) {
+    return d;
+  }
+}
+/* 写入当前排序偏好；隐私模式等写入失败时静默降级 */
+function savePickerSort() {
+  try {
+    localStorage.setItem(PICKER_SORT_KEY, JSON.stringify({ sortBy: picker.sortBy, unknownSort: picker.unknownSort }));
+  } catch (_) { /* 不记偏好也能正常用 */ }
+}
+/* 启动时恢复上次的排序偏好（无记录 → 原文 + 结构） */
+Object.assign(picker, loadPickerSort());
 /* 夹紧：宽 ∈ [默认宽, 视口-16]，高 ∈ [300, 78vh]。
    默认宽度即最小宽度——防止组件空间不足，也给宽窗 flex 规则一个明确分界 */
 function clampPickerSize(w, h) {
@@ -1145,12 +1232,18 @@ function applyPickerSize(dlgEl) {
 function openPicker(kind, p, cur) {
   picker.kind = kind;
   picker.path = p;
+  /* originValue：打开此窗口的存档原始值（如 JSON 里的 "Lucky"）。
+     「跳转到当前项目」始终锚定它——之后无论查看/选中/编辑了哪些词条都不变 */
+  picker.originValue = cur || null;
+  /* 同级属性高亮：当前节点是数组元素的属性时，缓存本数组同 key 的值集合 */
+  picker.siblings = collectSiblingValues(p);
   picker.items = pickerItems(kind);
   picker.sel = picker.items.find((it) => it.value === cur) || null;
   $("#dlg-title").textContent = (KIND_TITLES[kind] || "选择 " + kind + " 的翻译") +
     (translationMetas[kind] && translationMetas[kind].name ? "（" + translationMetas[kind].name + "）" : "");
   $("#dlg-filter").value = "";
   updateSortButtons();
+  updateUnknownSortButtons();
   hideDlgForm();
   renderPickerList();
   const dlgEl = $("#dlg");
@@ -1180,6 +1273,22 @@ function updateSortButtons() {
   $("#dlg-sort-text").classList.toggle("sel", picker.sortBy === "text");
 }
 
+/* 未翻译项排序按钮的高亮状态（不重载列表） */
+function updateUnknownSortButtons() {
+  $("#dlg-unsort-struct").classList.toggle("sel", picker.unknownSort === "struct");
+  $("#dlg-unsort-default").classList.toggle("sel", picker.unknownSort !== "struct");
+}
+
+/* 切换未翻译项排序方式并重载列表（已翻译项次序不受影响） */
+function setUnknownSort(mode) {
+  if (picker.unknownSort === mode) return;
+  picker.unknownSort = mode;
+  updateUnknownSortButtons();
+  picker.items = pickerItems(picker.kind);
+  renderPickerList();
+  savePickerSort(); // 偏好持久化
+}
+
 /* 切换排序方式并重载列表（CSV 段仍恒在未翻译段前面） */
 function setPickerSort(mode) {
   if (picker.sortBy === mode) return;
@@ -1187,6 +1296,7 @@ function setPickerSort(mode) {
   updateSortButtons();
   picker.items = pickerItems(picker.kind);
   renderPickerList();
+  savePickerSort(); // 偏好持久化
 }
 
 function renderPickerList() {
@@ -1197,18 +1307,56 @@ function renderPickerList() {
   const items = q
     ? picker.items.filter((it) => (it.value + " " + stripInlineTags(it.label)).toLowerCase().indexOf(q) !== -1)
     : picker.items;
-  $("#dlg-count").textContent = items.length + " / " + picker.items.length + " 项";
+  /* 统计：主数字（当前过滤命中 / 全量）用正文色，未翻译数弱化灰单独显示，
+     一眼看出这批值里还有多少没翻（含 CSV 空翻译行与存档未收录值） */
+  const un = items.filter((it) => it.unknown).length;
+  const c = $("#dlg-count");
+  c.textContent = "";
+  c.append(h("span", "dc-main", items.length + " / " + picker.items.length + " 项"));
+  if (un) c.append(h("span", "dc-un", "未翻译 " + un + " 项"));
   if (!items.length) {
     host.append(h("div", "dlg-empty", "没有匹配项"));
   } else {
     for (const it of items) {
-      const row = h("div", "dlg-item" + (picker.sel && picker.sel.value === it.value ? " sel" : ""));
+      /* 同级属性高亮：本数组同 key 值的行整行高亮（sib），并追加「定位数组项」按钮 */
+      const sib = picker.siblings && picker.siblings.values.has(it.value);
+      const row = h("div", "dlg-item" + (picker.sel && picker.sel.value === it.value ? " sel" : "") + (sib ? " sib" : ""));
       row.append(h("span", "v", it.value));
       /* 翻译文字：有效颜色（行级第三列优先，其次 autoColor 自动匹配）作为
          文字色，文本里的 <font color> / <span style="color:"> 可局部覆盖 */
       const t = h("span", "t" + (it.unknown ? " unknown" : ""));
-      if (it.color && !it.unknown) t.style.color = it.color;
-      t.innerHTML = inlineColorHtml(it.label);
+      if (it.unknown) {
+        /* 未翻译项第二列不放「原文（未翻译）」文本（第一列已有原文），
+           改为「转到结构」小按钮：关窗并定位到树中第一个使用该值的位置 */
+        const b = h("button", "mini", "转到结构");
+        b.title = "关闭翻译窗口，跳转到 JSON 结构中第一个使用该值的位置";
+        b.onclick = (e) => {
+          if (e && e.stopPropagation) e.stopPropagation(); // 不触发行单击/双击
+          const p = firstPathOfValue(it.value);
+          closePicker();
+          if (p) jumpToPath(p);
+          else toast("结构中未找到 " + it.value, true);
+        };
+        t.append(b);
+      } else {
+        if (it.color) t.style.color = it.color;
+        t.innerHTML = inlineColorHtml(it.label);
+      }
+      /* 同级高亮行追加「定位数组项」：只在本数组内跳——目标是本数组中
+         第一个使用该值的元素（重复值取最靠上的），不会跳到其他 JSON 结构 */
+      if (sib) {
+        const sb = h("button", "mini", "定位数组项");
+        sb.title = "关闭翻译窗口，跳转到本数组中第一个使用该值的元素";
+        sb.onclick = (e) => {
+          if (e && e.stopPropagation) e.stopPropagation(); // 不触发行单击/双击
+          const s = picker.siblings; // 先取引用：closePicker 会清空 picker.siblings
+          const idx = s.firstIndex.get(it.value);
+          closePicker();
+          if (idx === undefined) { toast("本数组中未找到 " + it.value, true); return; }
+          jumpToPath(s.arrPath.concat([idx, s.key]));
+        };
+        t.append(sb);
+      }
       row.append(t);
       row.title = it.value + " — " + stripInlineTags(it.label);
       /* 单击选中：只切 class，不重建 DOM（不破坏文字划选、不跳滚动） */
@@ -1390,6 +1538,8 @@ function closePicker() {
   $("#dlg").classList.remove("show");
   $("#dlg-mask").classList.remove("show");
   picker.path = null;
+  picker.originValue = null;
+  picker.siblings = null;
   picker.sel = null;
   hideDlgForm();
 }
@@ -2015,6 +2165,54 @@ function renderPathBar() {
   }
 }
 
+/* 同级属性高亮：判断当前节点是否是「数组元素的属性」——
+   父是对象、且父的父是数组（如 entries[0].affixName：父=entries[0]，祖父=entries）。
+   成立则收集该数组下所有元素同一 key 的值，及每个值首次出现的元素索引，
+   供翻译列表整行高亮 + 「定位数组项」跳转（只在本数组内跳，不会串到其他结构）。
+   不成立返回 null */
+function collectSiblingValues(p) {
+  if (!p || p.length < 2) return null;
+  const key = p[p.length - 1];
+  if (typeof key !== "string") return null;
+  const parent = getPath(p.slice(0, -1));
+  if (parent === null || typeof parent !== "object" || Array.isArray(parent)) return null;
+  const arr = getPath(p.slice(0, -2));
+  if (!Array.isArray(arr)) return null;
+  const values = new Set();
+  const firstIndex = new Map();
+  arr.forEach((el, i) => {
+    if (el === null || typeof el !== "object" || Array.isArray(el)) return;
+    const v = el[key];
+    if (typeof v !== "string" || !v) return;
+    values.add(v);
+    if (!firstIndex.has(v)) firstIndex.set(v, i);
+  });
+  return { key, arrPath: p.slice(0, -2), values, firstIndex };
+}
+
+/* 深度优先遍历 state.data，返回第一个值严格等于 value 的路径（不存在 → null）。
+   供「转到结构」使用：从翻译列表跳回树中第一个使用该值的节点 */
+function firstPathOfValue(value) {
+  let found = null;
+  const walk = (node, path) => {
+    if (found) return;
+    if (node === null || typeof node !== "object") {
+      if (node === value) found = path;
+      return;
+    }
+    if (Array.isArray(node)) {
+      for (let i = 0; i < node.length && !found; i++) walk(node[i], path.concat(i));
+    } else {
+      for (const k of Object.keys(node)) {
+        if (found) break;
+        walk(node[k], path.concat(k));
+      }
+    }
+  };
+  walk(state.data, []);
+  return found;
+}
+
 /* 点击路径段：目标可能被折叠/过滤时先展开祖先、清过滤，再滑动滚动并高亮 */
 function jumpToPath(p) {
   closePathMenu();
@@ -2248,6 +2446,23 @@ $("#btn-import").onclick = doImport;
 /* ---------- picker dialog wiring ---------- */
 $("#dlg-close").onclick = closePicker;
 $("#dlg-mask").onclick = () => { if (hasTextSelection()) return; closePicker(); };
+/* 跳转到当前项目：在翻译列表内定位打开此窗口的存档值（picker.originValue，
+   如从 JSON 的 "Lucky" 点进来，之后无论查看/选中/编辑了哪些词条都锚定 "Lucky"）。
+   过滤词可能把目标行藏掉，先清过滤再渲染；定位只做 scrollIntoView + 闪烁高亮，
+   不改变 picker.sel、不写入翻译、不关闭弹窗 */
+$("#dlg-locate").onclick = () => {
+  const v = picker.originValue;
+  if (!v) { toast("未记录来源项目", true); return; }
+  if ($("#dlg-filter").value) { $("#dlg-filter").value = ""; }
+  renderPickerList();
+  const host = $("#dlg-list");
+  const row = Array.prototype.find.call(host.children,
+    (el) => el.title && el.title.indexOf(v + " — ") === 0);
+  if (!row) { toast("列表中找不到 " + v, true); return; }
+  if (typeof row.scrollIntoView === "function") row.scrollIntoView({ block: "center", behavior: "smooth" });
+  row.classList.add("flash");
+  setTimeout(() => row.classList.remove("flash"), 1500);
+};
 
 /* 添加对话框事件 */
 $("#add-close").onclick = closeAddDialog;
@@ -2284,6 +2499,8 @@ $("#dlg-save").onclick = savePicker;
 $("#dlg-refresh").onclick = dlgRefresh;
 $("#dlg-sort-value").onclick = () => setPickerSort("value");
 $("#dlg-sort-text").onclick = () => setPickerSort("text");
+$("#dlg-unsort-struct").onclick = () => setUnknownSort("struct");
+$("#dlg-unsort-default").onclick = () => setUnknownSort("default");
 $("#dlg-add").onclick = dlgAdd;
 $("#dlg-edit").onclick = dlgEdit;
 $("#dlg-del").onclick = dlgDelete;
