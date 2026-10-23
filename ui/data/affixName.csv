@@ -145,6 +145,7 @@ Pet_Defense_Poison_Primary,[宠物]宠物毒素防御
 Pet_HitPoints_Bonus,[宠物]宠物生命
 Pet_HitPoints_Regen,[宠物]每秒恢复A的宠物生命值
 Pet_Legendary_ActiveShock,[传奇][传奇默认词条]发条令牌
+Pet_Legendary_ElectricImmunity,[传奇][传奇默认词条]闪电防御之项圈
 Pet_Legendary_FireImmunity,[宠物]宠物对火焰伤害免疫
 Pet_Legendary_GhostPets,[宠物][传奇][传奇默认词条]古老的令牌
 Pet_Legendary_PoisonImmunity,[宠物][传奇][传奇默认词条]毒素防御之项圈
@@ -177,7 +178,8 @@ Skill_Duration_RelicBuff,duration for 雪暴|[神射手]雪暴 持续时间增�
 Skill_Duration_Sharpshooter_Rizzi,duration for Rizzi's Fate|[神射手]里兹的命运 持续时间增加
 Skill_Duration_Sharpshooter_Scout,duration for Scout's Bones' Poison|[神射手]侦察兵之骨 持续时间增加
 Skill_Level_RelicBarrier,Skill Level to 寒冰护盾|[神射手]寒冰护盾 等级增加
-Skill_Level_RelicPower,Skill Level to 冷锋|[神射手]
+Skill_Level_RelicBuff,Skill Level to 雪暴|[神射手] 等级增加
+Skill_Level_RelicPower,Skill Level to 冷锋|[神射手] 等级增加
 Skill_Level_RelicSkill,Skill Level to 寒冰傀儡|[神射手]寒冰傀儡 等级提升
 Skill_Level_Sharpshooter_CurseOfPipi,Skill Level to Curse of Pi'pi|[神射手]皮皮的诅咒 等级提升
 Skill_Level_Sharpshooter_GhostVisage,Skill Level to Ghost Visage|[神射手]鬼面，位移神技，自带 6 秒无敌
@@ -203,6 +205,7 @@ StatusEffect_Apply_Shock,A%的几率造成电击，持续B秒，击中敌人并�
 StatusEffect_Apply_Stun,A%几率造成眩晕，持续B秒。
 StatusEffect_ApplyImmobilize,A几率定身，持续B秒
 StatusEffect_ApplySlow,A几率减缓目标基础速度的B%，持续C秒
+StatusEffect_Duration_Bleed,A秒流血持续时间
 StatusEffect_Duration_Blind,A秒盲目持续时间
 StatusEffect_Duration_Burn,A秒燃烧持续时间
 StatusEffect_Duration_Chill,A秒霜寒持续时间

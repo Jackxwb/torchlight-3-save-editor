@@ -23,6 +23,7 @@ Armor_Legendary_Helm_GlobalSS_01,头盔[传奇]火枪手骑士帽
 Armor_Legendary_Helm_Hyvid_01,头盔[传奇]飞掠头盔
 Armor_Legendary_Pants_GlobalSS_01,裤子[传奇]火枪手长裤
 Armor_Legendary_Pants_Hyvid_01,裤子[传奇]飞掠护腿
+Armor_Legendary_PetCollar_ElectricImmunity,宠物项圈[传奇]闪电防御之项圈
 Armor_Legendary_PetCollar_FireImmunity,宠物项圈[传奇]火焰防御之项圈
 Armor_Legendary_PetCollar_PoisonImmunity,宠物项圈[传奇]毒素防御之项圈
 Armor_Legendary_Shoulders_GlobalSS_01,护肩[传奇]火枪手肩甲
@@ -96,8 +97,8 @@ Weapon_Legendary_Sword_BoneRazor,剑[传奇]刮骨
 Weapon_Legendary_Sword_Firestarter,剑[传奇]引火
 Weapon_Magic_Bow_01,弓[绿]高压扫帚之弓
 Weapon_Magic_Bow_02,弓[绿]严寒钩状弓
-Weapon_Magic_Bow_03,弓[绿]高压杨柳之弓
-Weapon_Magic_Bow_04,弓[绿]高压白杨之弓
+Weapon_Magic_Bow_03,弓[绿]杨柳之弓
+Weapon_Magic_Bow_04,弓[绿]白杨之弓
 Weapon_Magic_Bow_06,弓[绿]严寒包布之弓
 Weapon_Magic_Focus_01,触媒[绿]多面体
 Weapon_Magic_Focus_02,触媒[绿]快速的水晶
@@ -106,10 +107,13 @@ Weapon_Magic_Focus_04,触媒[绿]石爪
 Weapon_Magic_GreatWeapon_01,[绿]致命巨剑
 Weapon_Magic_GreatWeapon_02,巨武[绿]严寒宽刃剑
 Weapon_Magic_GreatWeapon_03,巨武[绿]严寒野蛮之刃
+Weapon_Magic_GreatWeapon_04,巨武[绿]高压双手巨剑
 Weapon_Magic_GreatWeapon_05,巨武[绿]炽烈双手剑
-Weapon_Magic_Mace_01,战锤[绿]炽烈装甲棍
+Weapon_Magic_Mace_01,战锤[绿]装甲棍
 Weapon_Magic_Mace_02,战锤[绿]致命厮杀战锤
 Weapon_Magic_Mace_03,战锤[绿]致命战争长棍
+Weapon_Magic_Mace_04,战锤[绿]严寒利刃战锤
+Weapon_Magic_Mace_05,战锤[绿]骑兵战锤
 Weapon_Magic_PetTag_01,宠物铭牌[绿]强力标记
 Weapon_Magic_Pistol_01,[绿]剧毒左轮手枪
 Weapon_Magic_Pistol_02,手枪[绿]剧毒燧石手枪
@@ -133,6 +137,8 @@ Weapon_Magic_Sword_03,剑[绿]严寒砍刀
 Weapon_Magic_Sword_04,剑[绿]半月刀
 Weapon_Normal_Bow_01,弓[灰]浮木之弓
 Weapon_Normal_Bow_02,弓[灰]即兴之弓
+Weapon_Normal_Bow_03,弓[灰]基础之弓
+Weapon_Normal_Bow_04,弓[灰]青苔树枝弓
 Weapon_Normal_Focus_01,触媒[灰]死爪
 Weapon_Normal_Focus_02,触媒[灰]卷轴
 Weapon_Normal_Focus_04,触媒[灰]黄金祭器
@@ -140,6 +146,7 @@ Weapon_Normal_GreatWeapon_01,巨武[灰]大斧
 Weapon_Normal_GreatWeapon_02,巨武[灰]砍斧
 Weapon_Normal_Mace_01,战锤[灰]破棍
 Weapon_Normal_Mace_02,战锤[灰]尖刺战锤
+Weapon_Normal_Mace_05,战锤[灰]战斗大锤
 Weapon_Normal_PetTag_01,宠物铭牌[灰]暗沉铭牌
 Weapon_Normal_Pistol_01,手枪[灰]Pistol
 Weapon_Normal_Pistol_02,手枪[灰]Pistol
@@ -147,6 +154,8 @@ Weapon_Normal_Rifle_01,步枪[灰]滑膛枪
 Weapon_Normal_Shield_01,盾牌[蓝]木制小盾
 Weapon_Normal_Shield_02,盾牌[灰]圆盾
 Weapon_Normal_Shield_03,盾牌[灰]苔藓木盾
+Weapon_Normal_Shield_05,盾牌[灰]古盾
+Weapon_Normal_Staff_02,法杖[灰]法师法杖
 Weapon_Normal_Sword_01,剑[灰]宽刃剑
 Weapon_Normal_Sword_02,剑[灰]雇佣兵剑
 Weapon_Rare_Bow_01,弓[蓝]致命之翼
@@ -161,10 +170,13 @@ Weapon_Rare_GreatWeapon_01,巨武[蓝]征服者
 Weapon_Rare_GreatWeapon_02,巨武[蓝]绝对正义
 Weapon_Rare_GreatWeapon_03,巨武[蓝]佣兵大砍刀
 Weapon_Rare_GreatWeapon_04,巨武[蓝]先祖巨刃
+Weapon_Rare_GreatWeapon_06,巨武[蓝]血肉撕裂者
 Weapon_Rare_Mace_02,战锤[蓝]酋长棍棒
 Weapon_Rare_Mace_03,战锤[蓝]暗淡之星
 Weapon_Rare_Mace_04,战锤[蓝]糖王的权杖
 Weapon_Rare_Mace_05,战锤[蓝]行尸战锤
+Weapon_Rare_Mace_07,战锤[蓝]洞穴棍棒
+Weapon_Rare_Mace_10,战锤[蓝]最终仪式
 Weapon_Rare_PetTag_01,宠物铭牌[蓝]徽章
 Weapon_Rare_Pistol_01,手枪[蓝]手炮
 Weapon_Rare_Pistol_02,手枪[蓝]手斧之击
@@ -177,9 +189,12 @@ Weapon_Rare_Shield_03,盾牌[蓝]雕文
 Weapon_Rare_Shield_05,盾牌[蓝]中翼
 Weapon_Rare_Staff_02,法杖[蓝]最终调和
 Weapon_Rare_Staff_03,法杖[蓝]先知法杖
+Weapon_Rare_Staff_05,法杖[蓝]仁慈之命
 Weapon_Rare_Staff_06,法杖[蓝]放逐者法杖
 Weapon_Rare_Staff_09,法杖[蓝]夜目法杖
 Weapon_Rare_Sword_01,剑[蓝]歼灭者
 Weapon_Rare_Sword_02,剑[蓝]碎片之刃
 Weapon_Rare_Sword_03,剑[蓝]行刑官之锋
 Weapon_Rare_Sword_04,剑[蓝]舍费尔的针
+Weapon_Rare_Sword_05,剑[蓝]死亡弯钩
+Weapon_Rare_Sword_06,剑[蓝]生命终结者
