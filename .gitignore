@@ -112,6 +112,8 @@ torchlight-3-save-editor/
 
 # 测试临时产物
 .wb-test-tmp/
+# 开发期测试脚本（test 开头的 .js；长期回归测试在 .wb-test-tmp 下维护）
+test*.js
 
 # 备份文件
 *.bak
