@@ -1,5 +1,16 @@
 # name: 物资类型
+AdventurerContract,冒险者契约,#1bf3e5
+AutomatonFortSacrifice,机器人装置
 Gold,金币
+HyvidFortSacrifice,骇危虫胶
+LegendaryEssence,[传奇]传奇精华
+MagicEssence,[绿]魔法精华
+MetalBar_T1_Tin,金属锭
 MetalNugget_T1_Tin,金属块
+RareEssence,[蓝]稀有精华
+RareStone,彗星碎片?
+RareWood,紫檀神木
+StoneBlock_T1_Sandstone,石砖
 StoneRock_T1_Sandstone,石头
 WoodLog_T1_Ash,原木
+WoodPlank_T1_Ash,木板

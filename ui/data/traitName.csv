@@ -2,6 +2,8 @@
 Ammo,弹药
 Currency,物资资源,#e302dc
 Difficulty,难度
+FameLevel,契约等级
+FamePercent,契约完成百分比（当前等级内）,#f58f00
 Hitpoints,生命值
 Level,等级
 LevelSkillPoints,可用技能点
