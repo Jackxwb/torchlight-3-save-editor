@@ -10,6 +10,7 @@
     "transpile": "tsc",
     "assets": "copyfiles ./assets/* ./dist",
     "build": "npm-run-all --sequential clean lint transpile assets",
+    "data-commit": "node scripts/data-commit.js",
     "test": "echo \"Error: no test specified\" && exit 0"
   },
   "bin": {

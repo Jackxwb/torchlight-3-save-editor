@@ -142,6 +142,42 @@ FireResist,火焰抗性,#ff8800
 
 删除 `ui/data/` 下的 CSV 不影响程序运行，只是对应键不再显示翻译。
 
+### 翻译数据变更提交（scripts/data-commit.js）
+
+维护完翻译 CSV 后，用脚本一键生成变更记录并提交推送，无需手动统计：
+
+```bash
+# Windows 双击 scripts\data-commit.bat，或：
+node scripts/data-commit.js              # 无参数=交互模式（见下方流程）
+node scripts/data-commit.js --dry-run    # 只打印变更记录，不提交
+node scripts/data-commit.js --no-push    # 询问是否提交；提交后不询问也不推送
+```
+
+无参数时的交互流程：
+
+1. 对比 HEAD 生成变更记录并打印到控制台
+2. 询问「是否生成变更记录并提交？」——选 `n`（或直接回车）脚本直接退出，
+   不提交不推送
+3. 选 `y` → **只提交 ui/data 下的变更**（暂存区里的其他文件不受影响，
+   可另行分批次提交）
+4. 提交完成后询问「是否推送更新？」——选 `n` 则只提交不推送
+
+提交信息由脚本按固定格式生成（与 Git 历史保持一致）：
+
+```text
+[游戏翻译数据更新维护]
+affixName.csv，增加 灰色词条0条，绿色词条0条，蓝色词条0条，传奇词条13条，其他词条22条，修改 其他词条13条
+itemDataRow.csv，增加 灰色装备10条，绿色装备14条，蓝色装备21条，传奇装备12条，其他装备2条，修改 传奇装备1条
+autoColor.csv，自动颜色规则，变更记录0条
+param.csv，物资类型，增加11条
+```
+
+判定规则与 UI 解析逻辑一致：`affixName.csv` / `itemDataRow.csv` 按翻译文字里的
+`[灰]`/`[绿]`/`[蓝]`/`[传奇]` 标签分级（无标签归「其他」）；`.autoColor.csv` 只把
+首列是合法颜色的行当规则，按正则文本统计颜色变更；其余 CSV 用文件头 `# name:`
+作标签，只统计条目增减。重命名（如 `autoColor.csv` → `.autoColor.csv`）按内容
+相同识别，规则未变则记 0 条。
+
 ## 数据安全与可靠性
 
 本项目曾因磁盘可用空间为 0，写入时「打开即截断」把翻译 CSV 整个清空。
@@ -178,6 +214,9 @@ FireResist,火焰抗性,#ff8800
 │   ├── index.html        #   前端单页（全部逻辑内联）
 │   ├── start-ui.bat      #   Windows 双击启动器
 │   └── data/             #   翻译词库 CSV + .autoColor 规则库
+└── scripts/              # 维护脚本（零依赖，仅需 Node）
+    ├── data-commit.js    #   翻译数据变更 → 提交信息生成 + 一键提交推送
+    └── data-commit.bat   #   Windows 双击运行 data-commit.js
 └── torchlight-3-save-editor/   # 运行时生成的 JSON 工作目录（已 gitignore）
 ```
 
