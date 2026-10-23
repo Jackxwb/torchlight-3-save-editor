@@ -33,6 +33,10 @@
   button.primary { background: var(--accent); border-color: var(--accent); color: #0d1420; font-weight: 600; }
   button.primary:disabled { background: var(--panel2); border-color: var(--border); color: var(--muted); cursor: not-allowed; }
   button.danger { background: #4a2323; border-color: #7a3030; }
+  button.go { background: #1c6b45; border-color: #2f9d68; color: #d9f5e7; font-weight: 600; }
+  button.go:hover { border-color: var(--ok); }
+  .gh-link { color: var(--muted); font-size: 12px; text-decoration: none; border-bottom: 1px dashed var(--border); padding-bottom: 1px; white-space: nowrap; }
+  .gh-link:hover { color: var(--accent); border-bottom-color: var(--accent); }
   input[type="text"] {
     background: var(--bg); color: var(--text); border: 1px solid var(--border);
     border-radius: 5px; padding: 2px 7px; font: inherit; min-width: 0;
@@ -72,6 +76,9 @@
   .file-item .fn { font-family: var(--mono); font-size: 12px; word-break: break-all; }
   .file-item .fs { color: var(--muted); font-size: 11px; }
   .side-empty { padding: 14px 12px; color: var(--muted); }
+  .side-empty .se-title { color: var(--text); font-weight: 600; margin-bottom: 6px; }
+  .side-empty .se-hint { line-height: 1.7; }
+  .side-empty .se-hint b { color: var(--ok); font-weight: 600; }
 
   main { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
   #toolbar {
@@ -358,7 +365,7 @@
     <div class="side-head">
       <span>存档 JSON 文件</span>
       <span class="btns">
-        <button id="btn-export" title="从 Frontiers 目录解析 .sav 为 JSON（等价于 CLI 的 export 命令）">解析存档</button>
+        <button id="btn-export" class="go" title="从 Frontiers 目录解析 .sav 为 JSON（等价于 CLI 的 export 命令）">解析存档</button>
         <button id="btn-refresh" title="刷新文件列表">刷新</button>
       </span>
     </div>
@@ -393,8 +400,8 @@
     <div id="importbar">
       <label>Frontiers 目录</label>
       <input type="text" id="frontiers">
-      <button class="danger" id="btn-import">写回游戏存档 (.sav)</button>
-      <span style="color:var(--muted);font-size:12px">与 CLI import 逻辑一致，原 .sav 自动备份为 .bak</span>
+      <button class="danger" id="btn-import" title="写回游戏存档（与 CLI import 逻辑一致，原 .sav 会自动备份为 .bak）">写回游戏存档 (.sav)</button>
+      <a class="gh-link" href="https://github.com/Jackxwb/torchlight-3-save-editor" target="_blank" rel="noopener noreferrer" title="打开 GitHub 项目页面">GitHub · Jackxwb/torchlight-3-save-editor ↗</a>
     </div>
     <div id="importlog"></div>
   </main>
@@ -575,10 +582,16 @@ function renderFiles() {
   const host = $("#filelist");
   host.textContent = "";
   if (!state.files.length) {
-    host.append(h("div", "side-empty",
-      state.current === null && !state.files.length
-        ? "目录为空或不存在。先运行 export 生成 JSON。"
-        : "没有 JSON 文件"));
+    const box = h("div", "side-empty");
+    if (state.current === null) {
+      /* 从未解析过存档：给出明确的操作引导，而不是一句干巴巴的报错 */
+      box.append(h("div", "se-title", "目录为空或不存在"));
+      box.append(h("div", "se-hint",
+        "第一次使用：请点击上方「解析存档」按钮，从 Frontiers 目录解析游戏存档（.sav）为 JSON，之后即可在此浏览和编辑。"));
+    } else {
+      box.append(h("div", null, "没有 JSON 文件"));
+    }
+    host.append(box);
     return;
   }
   for (const f of state.files) {
