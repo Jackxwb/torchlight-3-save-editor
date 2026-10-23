@@ -17,7 +17,7 @@
  *   GET  /api/translations/files          list translation CSVs in ./ui/data
  *   GET  /api/translations?file=guid.csv        read a translation CSV
  *   POST /api/translations       { file, entries:[{value,text,color}] } rewrite it（color 可选：#hex 或命名色）
- *  GET  /api/autocolor                     read ./ui/data/autoColor.csv（自动配色规则库）
+ *  GET  /api/autocolor                     read ./ui/data/.autoColor.csv（自动配色规则库）
  */
 "use strict";
 
@@ -33,11 +33,11 @@ const DATA_DIR = process.env.DATA_DIR
   : path.join(ROOT, "torchlight-3-save-editor");
 /* 静态翻译数据目录：ui/data/{guid.csv,affixName.csv} */
 const TRANSLATION_DIR = path.join(__dirname, "data");
-/* autoColor 规则库文件名：也放在 data 目录，但不是翻译 kind，
-   翻译清单 / 读写接口都要把它排除在外 */
-const AUTOCOLOR_FILE = "autoColor.csv";
+/* autoColor 规则库文件名：点号开头与翻译表区分，也放在 data 目录，
+   但不是翻译 kind，翻译清单 / 读写接口都要把它排除在外 */
+const AUTOCOLOR_FILE = ".autoColor.csv";
 /* 动态列出 ./ui/data 下的翻译 CSV：文件名（去 .csv 后缀）即翻译 Key，
-   新增一个 csv 文件就自动多一路翻译，无需改代码（autoColor.csv 除外） */
+   新增一个 csv 文件就自动多一路翻译，无需改代码（.autoColor.csv 除外） */
 function listTranslationFiles() {
   try {
     return fs
@@ -389,7 +389,7 @@ function apiGetTranslations(res, name) {
   res.end(text);
 }
 
-/* GET /api/autocolor —— 返回 autoColor.csv 原文（文件不存在 → 空串，前端得到空规则）。
+/* GET /api/autocolor —— 返回 .autoColor.csv 原文（文件不存在 → 空串，前端得到空规则）。
    与翻译 CSV 同样的缓存头：手改规则后刷新浏览器最多等 60 秒，
    或点选择窗「刷新」（带 cache:reload）立即生效 */
 function apiGetAutoColor(res) {

@@ -46,7 +46,7 @@
 - `# color: blue` —— 该 Key 的主题色（13 个命名色或 `#hex`）
 - 行末第三列 `数值,翻译,#ff8800` —— 单条翻译文字颜色
 - 翻译文本支持 `<font color="#fff">变色</font>` 内联局部上色
-- `autoColor.csv` —— 正则自动配色规则库：翻译未手动设色时，按正则
+- `.autoColor.csv` —— 正则自动配色规则库：翻译未手动设色时，按正则
   匹配翻译文字自动着色（如所有含「火焰」的翻译显示为橙色）
 - 翻译选择弹窗：新增 / 修改 / 删除 / 刷新 / 按原文或翻译排序，
   窗口大小可拖动调整并记忆在浏览器本地
@@ -137,7 +137,7 @@ FireResist,火焰抗性,#ff8800
 - `#` 开头为注释行；`# 参数名: 值` 形式的注释是头部参数
   （`name` / `isKey` / `color`）
 - 行末第三列 `#hex` 是该条翻译的文字颜色
-- `autoColor.csv` 是正则自动配色规则库（`颜色,正则1,正则2,...`），
+- `.autoColor.csv` 是正则自动配色规则库（`颜色,正则1,正则2,...`），
   格式见文件内注释
 
 删除 `ui/data/` 下的 CSV 不影响程序运行，只是对应键不再显示翻译。
@@ -177,7 +177,7 @@ FireResist,火焰抗性,#ff8800
 │   ├── server.js         #   HTTP 服务 + 存档读写 API
 │   ├── index.html        #   前端单页（全部逻辑内联）
 │   ├── start-ui.bat      #   Windows 双击启动器
-│   └── data/             #   翻译词库 CSV + autoColor 规则库
+│   └── data/             #   翻译词库 CSV + .autoColor 规则库
 └── torchlight-3-save-editor/   # 运行时生成的 JSON 工作目录（已 gitignore）
 ```
 

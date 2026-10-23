@@ -943,7 +943,7 @@ function regexBalanced(pat) {
   return !inClass && brace === 0 && depth === 0;
 }
 
-/* 解析 autoColor.csv → [{ color, re }, ...]
+/* 解析 .autoColor.csv → [{ color, re }, ...]
    每行「颜色,正则1,正则2,...」：
    - 第一列是颜色值（#hex 或命名色），非法则整行跳过
    - 第二列起是 JS 正则（不带斜杠与标志，大小写敏感），逐列编译，非法列跳过
@@ -980,7 +980,7 @@ function parseAutoColor(text) {
   return rules;
 }
 
-/* 拉取 autoColor 规则库（ui/data/autoColor.csv）；文件不存在/加载失败 → 空规则。
+/* 拉取 autoColor 规则库（ui/data/.autoColor.csv）；文件不存在/加载失败 → 空规则。
    规则库是可选增强，失败时静默降级，不影响翻译等其它功能 */
 async function loadAutoColor(force) {
   try {
