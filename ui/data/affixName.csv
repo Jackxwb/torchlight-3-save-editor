@@ -5,6 +5,7 @@ Ammo_Regen_Primary_Strong,每秒弹药恢复（初级，强力）
 Ammo_Regen_Primary,每秒弹药恢复
 Ammo_Regen,每秒弹药恢复
 AttackSpeedBonus,普通攻击速度
+Block_Newbie,格挡率（格挡率）
 Block_Secondary,格挡率（二级）
 Block_Strong,格挡率（强）
 bLock,格挡率
@@ -33,6 +34,7 @@ Damage_Ice_Primary_2H,寒冰伤害（初级）
 Damage_Ice_Primary,寒冰伤害（初级）
 Damage_Ice_Secondary_2H,寒冰伤害（二级）
 Damage_Ice_Secondary,寒冰伤害（二级）
+Damage_Physical_Newbie,物理伤害（新手）
 Damage_Physical_Primary_2H,物理伤害（初级）
 Damage_Physical_Primary,物理伤害（初级）
 Damage_Physical_Secondary_2H,物理伤害（二级2H）
@@ -48,13 +50,21 @@ Damage_vsNetherim_Secondary,对冥裔的伤害
 Damage_vsUndead_Secondary_2H,对死灵的伤害
 Damage_vsUndead_Secondary,对死灵的伤害（二级）
 Damage_vsVespid_Secondary_2H,对骇危虫的伤害（二级2H）
+Damage_vsVespid_Secondary,对骇危虫的伤害
+Damage_vsVoltura_Secondary_2H,对伏特拉的伤害2H
+Damage_vsVoltura_Secondary,对伏特拉的伤害
+DamageMult_Electric_Secondary_Armor,闪电伤害加成
 DamageMult_Fire_Secondary_Armor,火焰伤害加成
 DamageMult_Ice_Secondary_Armor,寒冰伤害加成
 DamageMult_Physical_Secondary_Armor,物理伤害加成
 DamageMult_Poison_Secondary_Armor,毒素伤害加成
+Defense_Electric_Large_Secondary,闪电防御（大，二级）
+Defense_Electric_Medium_Secondary,闪电防御（中，二级）
+Defense_Electric_Small_Secondary,闪电防御（小，二级）
 Defense_Fire_Large_Secondary,火焰防御（二级，大）
 Defense_Fire_Medium_Secondary,火焰防御（二级，中）
 Defense_Fire_Small_Secondary,火焰防御（小，二级）
+Defense_Physical_Large_Primary_Newbie,防御（大，初级，新手）
 Defense_Physical_Large_Primary_Strong,防御（大，初级，强大）
 Defense_Physical_Large_Primary,防御（大）
 Defense_Physical_Large_Secondary,防御（大，二级）
@@ -70,6 +80,7 @@ EnchantingEssence_Magic_8_Tooltip,[消耗品词条]魔法精华
 EnchantingEssence_Rare_4_Tooltip,[消耗品词条]稀有精华
 EnchantingRecipe_Category_1HWeapon_Tooltip,[附魔配方][提示]配方类别：单手武器
 EnchantingRecipe_Category_2HWeapon_Tooltip,[附魔配方][提示]强化（双手武器）
+EnchantingRecipe_Category_PetTag_Tooltip,[提示]附魔配方：宠物铭牌
 EnchantingSlot_Common,[灰]附魔槽（普通）
 EnchantingSlot_Legendary,[传奇]附魔槽
 EnchantingSlot_Magic,[绿]附魔槽（魔法）
@@ -90,14 +101,19 @@ HitPoints_Regen_Secondary,每秒生命恢复
 ItemType_Weapon_Digitus_Tooltip,[附魔配方][类型]魂指
 ItemType_Weapon_GreatWeapon_Tooltip,[附魔配方][类型]巨武
 ItemType_Weapon_Mace_Tooltip,[附魔配方][类型]战锤
+ItemType_Weapon_PetTag_Tooltip,[提示]附魔配方：宠物铭牌
 ItemType_Weapon_Railhammer_Tooltip,[附魔配方][类型]轨道锤
 ItemType_Weapon_Staff_Tooltip,[附魔配方][类型]法杖
 ItemType_Weapon_Sword_Tooltip,[附魔配方][类型]剑
 Legendary_AlexSwordProc,[传奇][传奇默认词条]风暴裂刃
+Legendary_ArcPowered_ElectricVolturaProtection,[传奇][传奇默认词条]电能手套
+Legendary_ArcPowered_ZapOnBlock,[传奇][传奇默认词条]电能靴子
 Legendary_BasicAttackFireballs,[传奇][传奇默认词条]引火
 Legendary_Bow_StormDriver,[传奇][传奇默认词条]风暴驾驭者
 Legendary_Bow_TwoTonPull,[传奇][传奇默认词条]千钧之力
 Legendary_Focus_Chronometer,[传奇][传奇默认词条]精密时计
+Legendary_Pistol_LittleDrake,[传奇][传奇默认词条]幼鸭
+Legendary_Pistol_PoisonPopper,[传奇][传奇默认词条]感染者射手
 Legendary_PoisonBarrage,[传奇][传奇默认词条]三花蛇法杖
 Legendary_RandomRelicSkill,[传奇]施放寒霜冲击时：同时通过另一个随机圣物施放一个技能
 Legendary_Rifle_HeartShocker,[传奇][传奇默认词条]惊心
@@ -105,6 +121,7 @@ Legendary_Rifle_Leadership,[传奇][传奇默认词条]领袖步枪
 Legendary_Shield_Shasta,[传奇][传奇默认词条]沙诗塔的承诺
 Legendary_Skittering_ShrineDuration,[传奇][传奇默认词条]飞掠头盔
 Legendary_Skittering_SpewPoison,[传奇][传奇默认词条]飞掠护腿
+Legendary_SSSet1_AdventurerPoints,[传奇][传奇默认词条]火枪手长袍
 Legendary_SSSet1_BasicAmmoRestore,[传奇][传奇默认词条]火枪手长裤
 Legendary_SSSet1_ExtraCharge,[传奇][传奇默认词条]火枪手猎靴
 Legendary_SSSet1_Herman,[传奇][传奇默认词条]火枪手手套
@@ -115,8 +132,11 @@ Legendary_SummonSkeletonKnightsOnRelic,[传奇][传奇默认词条]骸骨之盾
 Legendary_SummonSkeletonWarriorsOnRelic,[传奇][传奇默认词条]刮骨
 Legendary_Woodsbeast_GoblinRage,[传奇][传奇默认词条]森林野兽靴子
 Legendary_Woodsbeast_LuckOnGoblinKill,[传奇][传奇默认词条]森林野兽胸甲
+LegendarySetBonus_ArcPowered_ElectricVolturaProtection,[传奇][传奇默认词条]电能手套
+LegendarySetBonus_ArcPowered_ZapOnBlock,[传奇][传奇默认词条]电能靴子
 LegendarySetBonus_Skittering_ShrineDuration,[传奇][传奇默认词条]飞掠头盔
 LegendarySetBonus_Skittering_SpewPoison,[传奇][传奇默认词条]飞掠护腿
+LegendarySetBonus_SSSet1_AdventurerPoints,[传奇][传奇默认词条]火枪手长袍
 LegendarySetBonus_SSSet1_BasicAmmoRestore,[传奇][传奇默认词条]火枪手长裤
 LegendarySetBonus_SSSet1_ExtraCharge,[传奇][传奇默认词条]火枪手猎靴
 LegendarySetBonus_SSSet1_Herman,[传奇][传奇默认词条]火枪手手套
@@ -129,6 +149,8 @@ Luck_Gold,幸运 • 金币
 Luck_Item,幸运 • 装备
 Luck_Potion,幸运 • 药剂
 Lucky,幸运（隐藏属性）
+Mapworks_LifeboundLuck_Rare,[地图工坊卷轴]+30%生命依存卷轴幸运加成
+Mapworks_MapScroll,[地图工坊卷轴]滚动地图
 Pet_AttackCooldown,[宠物]宠物攻击速度
 Pet_Block,[宠物]宠物格挡几率
 Pet_CriticalHit_Bonus,[宠物]宠物暴击伤害加成
@@ -145,10 +167,14 @@ Pet_Defense_Poison_Primary,[宠物]宠物毒素防御
 Pet_HitPoints_Bonus,[宠物]宠物生命
 Pet_HitPoints_Regen,[宠物]每秒恢复A的宠物生命值
 Pet_Legendary_ActiveShock,[传奇][传奇默认词条]发条令牌
+Pet_Legendary_CooldownReset,[传奇][传奇默认词条]活力令牌
 Pet_Legendary_ElectricImmunity,[传奇][传奇默认词条]闪电防御之项圈
 Pet_Legendary_FireImmunity,[宠物]宠物对火焰伤害免疫
+Pet_Legendary_FlameShockwave,[传奇][传奇默认词条]炼狱令牌
 Pet_Legendary_GhostPets,[宠物][传奇][传奇默认词条]古老的令牌
+Pet_Legendary_PoisonAura,[传奇][传奇默认词条]宠物令牌
 Pet_Legendary_PoisonImmunity,[宠物][传奇][传奇默认词条]毒素防御之项圈
+Pet_Legendary_SellTime,[宠物][传奇][传奇默认词条]快速讨价还价令牌
 Pet_SkillCooldown,[宠物]宠物的主动技能冷却速度加快A%
 Pet_StatusEffect_Apply_Bleed,[宠物]宠物攻击造成每秒A%武器伤害的流血，持续B秒
 Pet_StatusEffect_Apply_Burn,[宠物]宠物攻击造成每秒A%武器伤害的燃烧，持续B秒
@@ -175,20 +201,24 @@ Skill_Damage_Sharpshooter_TriShot,damage w/ Tight Grouping|[神射手]紧凑射�
 Skill_Damage_Staff_BasicAttack,法杖普通攻击伤害加成
 Skill_Damage_Sword_BasicAttack,剑击普通攻击伤害加成
 Skill_Duration_RelicBuff,duration for 雪暴|[神射手]雪暴 持续时间增加
+Skill_Duration_Sharpshooter_Goose,duration for Sacrifice to Goose's Vulnerability|[神射手]祭祀古斯 持续时间增加
 Skill_Duration_Sharpshooter_Rizzi,duration for Rizzi's Fate|[神射手]里兹的命运 持续时间增加
 Skill_Duration_Sharpshooter_Scout,duration for Scout's Bones' Poison|[神射手]侦察兵之骨 持续时间增加
+Skill_Level_RelicAttack,Skill Level to 寒霜冲击|[神射手]寒霜冲击 等级增加
 Skill_Level_RelicBarrier,Skill Level to 寒冰护盾|[神射手]寒冰护盾 等级增加
 Skill_Level_RelicBuff,Skill Level to 雪暴|[神射手] 等级增加
 Skill_Level_RelicPower,Skill Level to 冷锋|[神射手] 等级增加
 Skill_Level_RelicSkill,Skill Level to 寒冰傀儡|[神射手]寒冰傀儡 等级提升
 Skill_Level_Sharpshooter_CurseOfPipi,Skill Level to Curse of Pi'pi|[神射手]皮皮的诅咒 等级提升
+Skill_Level_Sharpshooter_ExplosiveArrow,Skill Level to Explosive Arrow|[神射手]爆炸箭
 Skill_Level_Sharpshooter_GhostVisage,Skill Level to Ghost Visage|[神射手]鬼面，位移神技，自带 6 秒无敌
 Skill_Level_Sharpshooter_GoblinLegion,Skill Level to Goblin Legion|[神射手]妖精军团
 Skill_Level_Sharpshooter_Heartseeker,Skill Level to Heart Seeker|[神射手]寻心箭/穿心箭
 Skill_Level_Sharpshooter_Onslaught,Skill Level to Onslaught|[神射手]箭雨
 Skill_Level_Sharpshooter_Reload,Skill Level to Reload|[神射手]Reload
-Skill_Level_Sharpshooter_RizzisFate,Skill Level to Rizzi's Fate|[神射手]Rizzi's Fate
+Skill_Level_Sharpshooter_RizzisFate,Skill Level to Rizzi's Fate|[神射手]里奇的命运
 Skill_Level_Sharpshooter_SacrificeToGoose,Skill Level to Sacrifice to Goose|[神射手]供奉大鹅
+Skill_Level_Sharpshooter_Scattershot,Skill Level to Scatter Shot|[神射手]散弹射击
 Skill_Level_Sharpshooter_ScoutsBones,Skill Level to Scout's Bones|[神射手]童子军
 Skill_Level_Sharpshooter_TargetedStrikes,Skill Level to Targeted Strikes|[神射手]精准打击
 Skill_Level_Sharpshooter_TightGrouping,Skill Level to Tight Grouping|[神射手]紧凑射击，初始输出技能
