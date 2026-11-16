@@ -343,6 +343,11 @@
   #importlog .r-ok { color: var(--ok); }
   #importlog .r-err { color: var(--err); }
 
+  /* 纯图标按钮（写回日志显隐切换） */
+  .icon-btn { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 28px; height: 24px; padding: 0; }
+  .icon-btn svg { display: block; }
+  .icon-btn.on { border-color: var(--accent); color: var(--accent); }
+
   #toast {
     position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
     background: #2c2f38; border: 1px solid var(--border); border-radius: 8px;
@@ -401,6 +406,7 @@
       <label>Frontiers 目录</label>
       <input type="text" id="frontiers">
       <button class="danger" id="btn-import" title="写回游戏存档（与 CLI import 逻辑一致，原 .sav 会自动备份为 .bak）">写回游戏存档 (.sav)</button>
+      <button id="btn-log" class="icon-btn" title="显示/隐藏写回日志"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M4.5 6.5 L6.5 8 L4.5 9.5"/><path d="M8.5 9.5 H11"/></svg></button>
       <a class="gh-link" href="https://github.com/Jackxwb/torchlight-3-save-editor" target="_blank" rel="noopener noreferrer" title="打开 GitHub 项目页面">GitHub · Jackxwb/torchlight-3-save-editor ↗</a>
     </div>
     <div id="importlog"></div>
@@ -2423,7 +2429,7 @@ async function doImport() {
     });
     const log = $("#importlog");
     log.textContent = "";
-    log.className = "show";
+    setImportLogVisible(true);
     log.append(h("div", null, "目标目录: " + r.saveGames));
     for (const item of r.results) {
       const line = h("div", item.ok ? "r-ok" : "r-err",
@@ -2435,6 +2441,15 @@ async function doImport() {
   } catch (e) {
     toast("写回失败: " + (e.message || e), true);
   }
+}
+
+/* 写回日志区域显隐切换（importbar 上的终端图标按钮）。doImport 成功输出
+   日志时也会调用本函数，保证按钮高亮态与日志实际可见状态一致 */
+function setImportLogVisible(v) {
+  $("#importlog").classList.toggle("show", v);
+  const b = $("#btn-log");
+  b.classList.toggle("on", v);
+  b.title = v ? "隐藏写回日志" : "显示写回日志";
 }
 
 /* ---------- wiring ---------- */
@@ -2466,10 +2481,12 @@ $("#btn-collapse").onclick = () => {
 $("#filter").oninput = (e) => { state.filter = e.target.value.trim().toLowerCase(); renderTree(); };
 $("#btn-export").onclick = doExport;
 $("#btn-import").onclick = doImport;
+$("#btn-log").onclick = () => setImportLogVisible(!$("#importlog").classList.contains("show"));
 
 /* ---------- picker dialog wiring ---------- */
 $("#dlg-close").onclick = closePicker;
-$("#dlg-mask").onclick = () => { if (hasTextSelection()) return; closePicker(); };
+/* 点击遮罩（弹窗外的空白处）不再关闭窗口，只能通过右上角 × 或
+   Esc 关闭，避免误触丢掉正在编辑的翻译 */
 /* 跳转到当前项目：在翻译列表内定位打开此窗口的存档值（picker.originValue，
    如从 JSON 的 "Lucky" 点进来，之后无论查看/选中/编辑了哪些词条都锚定 "Lucky"）。
    过滤词可能把目标行藏掉，先清过滤再渲染；定位只做 scrollIntoView + 闪烁高亮，
