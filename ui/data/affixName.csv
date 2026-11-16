@@ -36,6 +36,7 @@ Damage_Ice_Secondary_2H,寒冰伤害（二级）
 Damage_Ice_Secondary,寒冰伤害（二级）
 Damage_Physical_Newbie,物理伤害（新手）
 Damage_Physical_Primary_2H,物理伤害（初级）
+Damage_Physical_Primary_Focus_Newbie,物理伤害（初级，焦点，新手）
 Damage_Physical_Primary,物理伤害（初级）
 Damage_Physical_Secondary_2H,物理伤害（二级2H）
 Damage_Physical_Secondary,物理伤害（二级）
@@ -70,6 +71,7 @@ Defense_Physical_Large_Primary,防御（大）
 Defense_Physical_Large_Secondary,防御（大，二级）
 Defense_Physical_Medium_Primary,防御（中）
 Defense_Physical_Medium_Secondary,防御（中，二级）
+Defense_Physical_Small_Primary_Newbie,物理防御（小，初级，新手）
 Defense_Physical_Small_Primary,防御（小）
 Defense_Poison_Large_Secondary,毒素防御（大，二级）
 Defense_Poison_Medium_Secondary,毒素防御（中，二级）
@@ -79,12 +81,16 @@ EnchantingEssence_Legendary_2_Tooltip,[消耗品词条]传奇精华
 EnchantingEssence_Magic_8_Tooltip,[消耗品词条]魔法精华
 EnchantingEssence_Rare_4_Tooltip,[消耗品词条]稀有精华
 EnchantingRecipe_Category_1HWeapon_Tooltip,[附魔配方][提示]配方类别：单手武器
+EnchantingRecipe_Category_2HRangedWeapon_Tooltip,[提示]附魔配方：驱雷掣电
 EnchantingRecipe_Category_2HWeapon_Tooltip,[附魔配方][提示]强化（双手武器）
 EnchantingRecipe_Category_PetTag_Tooltip,[提示]附魔配方：宠物铭牌
 EnchantingSlot_Common,[灰]附魔槽（普通）
 EnchantingSlot_Legendary,[传奇]附魔槽
 EnchantingSlot_Magic,[绿]附魔槽（魔法）
 EnchantingSlot_Rare,[蓝]附魔槽（稀有）
+Energy_Regen_Primary_Strong,每秒法力恢复（初级，强大）
+Energy_Regen_Primary,每秒法力恢复（初级）
+Energy_Regen,每秒法力恢复
 Evasion_Medium_Primary,几率闪避伤害（初级，中）
 Evasion_Medium_Secondary,几率闪避伤害（二级，中）
 Evasion_Small_Primary,几率闪避伤害（初级，小）
@@ -98,11 +104,14 @@ HitPoints_OnKill_vsVespid,击杀骇危虫，生命恢复
 HitPoints_OnKill_vsVoltura,伏特拉击杀生命恢复
 HitPoints_OnKill,击杀生命恢复
 HitPoints_Regen_Secondary,每秒生命恢复
+ItemType_Weapon_Bow_Tooltip,[提示]附魔配方：弓
+ItemType_Weapon_Cannon_Tooltip,[提示]附魔配方：火炮
 ItemType_Weapon_Digitus_Tooltip,[附魔配方][类型]魂指
 ItemType_Weapon_GreatWeapon_Tooltip,[附魔配方][类型]巨武
 ItemType_Weapon_Mace_Tooltip,[附魔配方][类型]战锤
 ItemType_Weapon_PetTag_Tooltip,[提示]附魔配方：宠物铭牌
 ItemType_Weapon_Railhammer_Tooltip,[附魔配方][类型]轨道锤
+ItemType_Weapon_Rifle_Tooltip,[提示]附魔配方：步枪
 ItemType_Weapon_Staff_Tooltip,[附魔配方][类型]法杖
 ItemType_Weapon_Sword_Tooltip,[附魔配方][类型]剑
 Legendary_AlexSwordProc,[传奇][传奇默认词条]风暴裂刃
@@ -111,6 +120,9 @@ Legendary_ArcPowered_ZapOnBlock,[传奇][传奇默认词条]电能靴子
 Legendary_BasicAttackFireballs,[传奇][传奇默认词条]引火
 Legendary_Bow_StormDriver,[传奇][传奇默认词条]风暴驾驭者
 Legendary_Bow_TwoTonPull,[传奇][传奇默认词条]千钧之力
+Legendary_DMSet1_BetterLightDarkBuffs,[传奇][传奇默认词条]仙界裤子
+Legendary_DMSet1_CooldownGrantsMana,[传奇][传奇默认词条]仙界靴子
+Legendary_DMSet1_DarkPoints,[传奇][传奇默认词条]仙界面具
 Legendary_Focus_Chronometer,[传奇][传奇默认词条]精密时计
 Legendary_Pistol_LittleDrake,[传奇][传奇默认词条]幼鸭
 Legendary_Pistol_PoisonPopper,[传奇][传奇默认词条]感染者射手
@@ -134,6 +146,9 @@ Legendary_Woodsbeast_GoblinRage,[传奇][传奇默认词条]森林野兽靴子
 Legendary_Woodsbeast_LuckOnGoblinKill,[传奇][传奇默认词条]森林野兽胸甲
 LegendarySetBonus_ArcPowered_ElectricVolturaProtection,[传奇][传奇默认词条]电能手套
 LegendarySetBonus_ArcPowered_ZapOnBlock,[传奇][传奇默认词条]电能靴子
+LegendarySetBonus_DMSet1_BetterLightDarkBuffs,[传奇][传奇默认词条]仙界裤子
+LegendarySetBonus_DMSet1_CooldownGrantsMana,[传奇][传奇默认词条]仙界靴子
+LegendarySetBonus_DMSet1_DarkPoints,[传奇][传奇默认词条]仙界面具
 LegendarySetBonus_Skittering_ShrineDuration,[传奇][传奇默认词条]飞掠头盔
 LegendarySetBonus_Skittering_SpewPoison,[传奇][传奇默认词条]飞掠护腿
 LegendarySetBonus_SSSet1_AdventurerPoints,[传奇][传奇默认词条]火枪手长袍
@@ -149,6 +164,7 @@ Luck_Gold,幸运 • 金币
 Luck_Item,幸运 • 装备
 Luck_Potion,幸运 • 药剂
 Lucky,幸运（隐藏属性）
+Mapworks_Legendary_Item_Tooltip,[提示][传奇]地图提示
 Mapworks_LifeboundLuck_Rare,[地图工坊卷轴]+30%生命依存卷轴幸运加成
 Mapworks_MapScroll,[地图工坊卷轴]滚动地图
 Pet_AttackCooldown,[宠物]宠物攻击速度
@@ -183,6 +199,12 @@ Pet_StatusEffect_Apply_Poison,[宠物]宠物攻击造成每秒A%武器伤害的�
 Pet_StatusEffect_Apply_Shock,[宠物]宠物攻击造成电击，持续A秒，击中敌人并造成B%武器伤害
 Skill_Damage_BasicAttack,普通攻击伤害加成
 Skill_Damage_Bow_BasicAttack,弓普通攻击伤害加成
+Skill_Damage_Digitus_BasicAttack,魂指 普通攻击伤害加成（隐藏属性）
+Skill_Damage_DM_DarkSpears,damage w/ Dark Spears|[法师]黑暗之矛 伤害增加
+Skill_Damage_DM_HolyBolt,damage w/ Holy Bolt|[法师]圣光箭 伤害增加
+Skill_Damage_DM_HolyFury,damage w/ Holy Fury|[法师]神圣之怒 伤害增加
+Skill_Damage_DM_RadiantBlast,damage w/ Radiant Blast|[法师]光辉冲击 伤害增加
+Skill_Damage_DM_UnholyBolt,damage w/ Unholy Bolt|[法师]邪影箭 伤害增加
 Skill_Damage_GreatWeapon_BasicAttack,巨武普通攻击伤害加成
 Skill_Damage_Mace_BasicAttack,战锤普通攻击伤害加成
 Skill_Damage_Pistol_BasicAttack,手枪普通攻击伤害加成
@@ -200,10 +222,18 @@ Skill_Damage_Sharpshooter_TargetedStrikes,damage w/ Targeted Strikes|[神射手]
 Skill_Damage_Sharpshooter_TriShot,damage w/ Tight Grouping|[神射手]紧凑射击，伤害增加
 Skill_Damage_Staff_BasicAttack,法杖普通攻击伤害加成
 Skill_Damage_Sword_BasicAttack,剑击普通攻击伤害加成
+Skill_Duration_DM_Consecration,duration for Consecration|[法师]奉献 持续时间增加
 Skill_Duration_RelicBuff,duration for 雪暴|[神射手]雪暴 持续时间增加
 Skill_Duration_Sharpshooter_Goose,duration for Sacrifice to Goose's Vulnerability|[神射手]祭祀古斯 持续时间增加
 Skill_Duration_Sharpshooter_Rizzi,duration for Rizzi's Fate|[神射手]里兹的命运 持续时间增加
 Skill_Duration_Sharpshooter_Scout,duration for Scout's Bones' Poison|[神射手]侦察兵之骨 持续时间增加
+Skill_Level_DuskMage_Consecration,Skill Level to Consecration|[法师]奉献 等级增加
+Skill_Level_DuskMage_Damnation,Skill Level to Damnation|[法师]天谴 等级增加
+Skill_Level_DuskMage_DarkSpears,Skill Level to Dark Spears|[法师]黑暗之矛 等级增加
+Skill_Level_DuskMage_HolyBolt,Skill Level to Holy Bolt|[法师]圣光箭 等级增加
+Skill_Level_DuskMage_RadiantBlast,Skill Level to Radiant Blast|[法师]光辉冲击 等级增加
+Skill_Level_DuskMage_ShadowStep,Skill Level to Shadow Step|[法师]暗影步 等级增加
+Skill_Level_DuskMage_UnholyBolt,Skill Level to Unholy Bolt|[法师]邪能箭 等级增加
 Skill_Level_RelicAttack,Skill Level to 寒霜冲击|[神射手]寒霜冲击 等级增加
 Skill_Level_RelicBarrier,Skill Level to 寒冰护盾|[神射手]寒冰护盾 等级增加
 Skill_Level_RelicBuff,Skill Level to 雪暴|[神射手] 等级增加
@@ -214,6 +244,7 @@ Skill_Level_Sharpshooter_ExplosiveArrow,Skill Level to Explosive Arrow|[神射�
 Skill_Level_Sharpshooter_GhostVisage,Skill Level to Ghost Visage|[神射手]鬼面，位移神技，自带 6 秒无敌
 Skill_Level_Sharpshooter_GoblinLegion,Skill Level to Goblin Legion|[神射手]妖精军团
 Skill_Level_Sharpshooter_Heartseeker,Skill Level to Heart Seeker|[神射手]寻心箭/穿心箭
+Skill_Level_Sharpshooter_LoyalShasta,Skill Level to Loyal Shasta|[神射手]忠诚的沙斯塔
 Skill_Level_Sharpshooter_Onslaught,Skill Level to Onslaught|[神射手]箭雨
 Skill_Level_Sharpshooter_Reload,Skill Level to Reload|[神射手]Reload
 Skill_Level_Sharpshooter_RizzisFate,Skill Level to Rizzi's Fate|[神射手]里奇的命运

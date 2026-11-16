@@ -1,6 +1,30 @@
 # name: 物资类型
 AdventurerContract,冒险者契约,#1bf3e5
 AutomatonFortSacrifice,机器人装置
+Bane_ActivationSkill,[技能][灾难之星][主动]蜘蛛突袭
+Bane_Attack,[技能][灾难之星][主动]剧毒之喉
+Bane_Barrier,[技能][灾难之星][主动]剧毒新星
+Bane_Buff,[技能][灾难之星][主动]毒瘴
+Bane_FangedMaw,[技能][灾难之星][主动]幽灵蜘蛛
+Bane_PassiveBasic,[技能][灾难之星][被动]人手增加
+Bane_PassiveMinionDamage,[技能][灾难之星][被动]傀儡大师
+Bane_PassivePoisonDamage,[技能][灾难之星][被动]死亡蔓延
+Bane_PassiveRelicEnergy,[技能][灾难之星][被动]增能剂
+Bane_PassiveSpiderlings,[技能][灾难之星][被动]八足友军
+DM_Absolver,[技能][魔法师][主动]光明 · 赦免之光
+DM_Consecration,[技能][魔法师][主动]光明 · 奉献
+DM_Damnation,[技能][魔法师][主动]黑暗 · 天谴
+DM_DarkSpears,[技能][魔法师][主动]黑暗 · 黑暗之矛
+DM_EnergySpike,[技能][魔法师][主动]黑暗 · 能量尖刺
+DM_Entropy,[技能][魔法师][主动]黑暗 · 熵增无序
+DM_HolyBolt,[技能][魔法师][主动]光明 · 圣光箭
+DM_HolyFury,[技能][魔法师][主动]光明 · 神圣之怒
+DM_LightSpear,[技能][魔法师][主动]光明 · 光明之矛
+DM_LuminousRun,[技能][魔法师][主动]光明 · 光辉疾奔
+DM_RadiantBlast,[技能][魔法师][主动]光明 · 光辉冲击
+DM_ShadowStep,[技能][魔法师][主动]黑暗 · 暗隐步
+DM_SpiritWell,[技能][魔法师][主动]黑暗 · 虚空之井
+DM_UnholyBolt,[技能][魔法师][主动]黑暗 · 邪能箭
 Gold,金币
 HyvidFortSacrifice,骇危虫胶
 LegendaryEssence,[传奇]传奇精华
